@@ -7,7 +7,7 @@ from apps.core.validators import (
     validate_password
 )
 from apps.account.enums import AccountState
-from apps.account.models import Role
+from apps.account.models import Role, UserProfile
 from apps.core.models import DataLookup
 from apps.core.serializers import DataLookupSerializer
 
@@ -29,9 +29,7 @@ class UserResponseSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id",
-            "full_name",
             "email",
-            "phone_number",
             "role",
             "state",
             "created_at",
@@ -45,17 +43,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "full_name",
             "email",
-            "phone_number",
             "password",
-            "confirm_password",
-            "role"
+            "confirm_password"
         ]
 
     def validate(self, attrs):
         validate_email(attrs.get("email"))
-        validate_phone_number(attrs.get("phone_number"))
         validate_password(attrs.get("password"))
 
         if attrs.get("password") != attrs.get("confirm_password"):
@@ -117,46 +111,44 @@ class PasswordChangeSerializer(serializers.Serializer):
         return user
 
 
-# class CompanyProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CompanyProfile
-#         fields = [
-#             "company_name",
-#             "description",
-#             "address",
-#             "service",
-#             "license_number",
-#             "license_issuer",
-#             "created_at",
-#             "updated_at",
-#         ]
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = [
+            "first_name",
+            "last_name",
+            "phone",
+            "avatar",
+            "address",
+            "created_at",
+            "updated_at"
+        ]
 
-#     def create(self, validated_data):
-#         user = self.context["request"].user
-#         validated_data["user"] = user
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user"] = user
 
-#         return super().create(validated_data)
+        return super().create(validated_data)
 
-#     def to_representation(self, instance):
-#         return CompanyProfileResponseSerializer(
-#             instance, self.context
-#         ).to_representation(instance)
+    def to_representation(self, instance):
+        return UserProfileResponseSerializer(
+            instance, self.context
+        ).to_representation(instance)
 
 
-# class CompanyProfileResponseSerializer(serializers.ModelSerializer):
-#     user = UserSerializer()
+class UserProfileResponseSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
 
-#     class Meta:
-#         model = CompanyProfile
-#         fields = [
-#             "id",
-#             "company_name",
-#             "description",
-#             "address",
-#             "service",
-#             "license_number",
-#             "license_issuer",
-#             "user",
-#             "created_at",
-#             "updated_at",
-#         ]
+    class Meta:
+        model = UserProfile
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "phone",
+            "avatar",
+            "address",
+            "user",
+            "created_at",
+            "updated_at"
+        ]

@@ -7,7 +7,7 @@ class UserAccessPolicy(AbstractAccessPolicy):
         return queryset
 
 
-class CompanyProfileAccessPolicy(AbstractAccessPolicy):
+class USerProfileAccessPolicy(AbstractAccessPolicy):
     @classmethod
     def scope_queryset(cls, request, queryset):
         return queryset.filter(user=request.user)

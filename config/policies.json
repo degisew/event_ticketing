@@ -12,6 +12,30 @@
             }
         ]
     },
+    "USerProfileAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "create",
+                    "retrieve",
+                    "update"
+                ],
+                "principal": [
+                    "role:user"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
     "DataLookupAccessPolicy": {
         "statements": [
             {
