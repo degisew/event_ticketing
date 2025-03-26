@@ -42,8 +42,6 @@ class DataLookup(AbstractBaseModel):
 
     category = models.CharField(max_length=200, blank=True, verbose_name=_("Category"))
 
-    note = models.TextField(blank=True, verbose_name=_("Note"))
-
     index = models.PositiveIntegerField(default=0, verbose_name=_("Index"))
 
     is_default = models.BooleanField(default=False, verbose_name=_("Is Default"))
@@ -51,8 +49,6 @@ class DataLookup(AbstractBaseModel):
     is_active = models.BooleanField(default=False, verbose_name=_("Is Active"))
 
     remark = models.TextField(blank=True, verbose_name=_("Remark"))
-
-    data_type = models.CharField(max_length=200, verbose_name=_("Data Type"))
 
     class Meta:
         verbose_name = _("Data Lookup")
