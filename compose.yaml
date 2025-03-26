@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U XgkJUcqxEw -d event_ticketing"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - event_ticketing_dev_db_data:/var/lib/postgresql/data
+
+  pgadmin4:
+    image: dpage/pgadmin4
+    ports:
+      - 8001:80
+    env_file:
+      - .env
+    volumes:
+      - event_ticketing_dev_pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/dev/Dockerfile
+      args:
+        USER_ID: ${UID}
+        GROUP_ID: ${GID}
+    image: event_ticketing:dev
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/usr/src/app
+    user: "${UID}:${GID}"
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  event_ticketing_dev_db_data:
+  event_ticketing_dev_pgadmin_data:

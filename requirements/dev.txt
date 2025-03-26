@@ -1,0 +1,7 @@
+-r base.txt
+
+Faker==22.5.0
+pytest==8.3.4
+pytest-django==4.9.0
+coverage==7.6.10
+pytest-cov==6.0.0

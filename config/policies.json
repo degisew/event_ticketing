@@ -1,0 +1,41 @@
+{
+    "UserAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
+    "DataLookupAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
+    "SystemSettingAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            }
+        ]
+    }
+}
