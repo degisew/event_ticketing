@@ -1,14 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-
-
-
-from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import Group
-
 from apps.account.forms import UserChangeForm, UserCreationForm
-from apps.account.models import Role, User, UserPreferences
+from apps.account.models import Role, User, UserPreferences, UserProfile
 
 
 @admin.register(User)
@@ -18,17 +12,13 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     model = User
 
-    # The fields to be used in displaying the User model.
-    # These override the definitions on the base UserAdmin
-    # that reference specific fields on auth.User.
-    list_display = ["full_name", "email", "phone_number", "is_staff", "role"]
-    list_filter = ["is_staff", "role"]
+    list_display = ["email", "role"]
+    list_filter = ["role"]
     fieldsets = [
-        (None, {"fields": ["email", "phone_number", "password"]}),
-        ("Personal info", {"fields": ["full_name"]}),
+        (None, {"fields": ["email", "password"]}),
         (
             "Permissions",
-            {"fields": ["is_staff", "state", "role"]},
+            {"fields": ["state", "role"]},
         ),
         ("Important dates", {"fields": ["created_at", "updated_at", "deleted_at"]}),
     ]
@@ -39,9 +29,7 @@ class UserAdmin(BaseUserAdmin):
             {
                 "classes": ["wide"],
                 "fields": [
-                    "full_name",
                     "email",
-                    "phone_number",
                     "password1",
                     "password2",
                     "is_staff",
@@ -52,13 +40,14 @@ class UserAdmin(BaseUserAdmin):
         )
     ]
 
-    search_fields = ["full_name", "email", "phone_number"]
+    search_fields = ["email"]
     ordering = ["-created_at"]
     readonly_fields = ["created_at", "updated_at"]
     filter_horizontal = []
 
 
 admin.site.register(Role)
+admin.site.register(UserProfile)
 admin.site.register(UserPreferences)
 
 # since we're not using Django's built-in permissions,

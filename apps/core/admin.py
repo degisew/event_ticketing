@@ -20,7 +20,6 @@ class DataLookupAdmin(admin.ModelAdmin):
                     "value",
                     "category",
                     "is_default",
-                    "note",
                     "index",
                 ),
             },
@@ -38,7 +37,6 @@ class DataLookupAdmin(admin.ModelAdmin):
                     "value",
                     "category",
                     "is_default",
-                    "note",
                     "index",
                 )
             },
