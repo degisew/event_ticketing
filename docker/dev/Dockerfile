@@ -34,6 +34,8 @@ COPY ./requirements/ ./requirements/
 RUN pip install pip --upgrade
 RUN pip install --upgrade -r ./requirements/dev.txt
 
+# Celery monitoring tool
+RUN pip install flower
 
 RUN pip install psycopg2
 

@@ -43,6 +43,52 @@ services:
       db:
         condition: service_healthy
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_broker
+    # restart: always
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./docker/dev/Dockerfile
+    container_name: celery_worker
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - ./:/usr/src/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - api
+
+  # flower:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/dev/Dockerfile
+  #   container_name: flower_monitor
+  #   command: flower --broker=redis://redis:6379/0
+  #   ports:
+  #     - "5555:5555"
+  #   volumes:
+  #     - ./:/usr/src/app
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - redis
+  #     - celery_worker
+  # flower:
+  #   image: mher/flower
+  #   container_name: flower_monitor
+  #   command: flower --broker=redis://redis:6379/0
+  #   ports:
+  #     - "5555:5555"
+  #   depends_on:
+  #     - redis
+  #     - celery_worker
+
 volumes:
   event_ticketing_dev_db_data:
   event_ticketing_dev_pgadmin_data:

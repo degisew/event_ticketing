@@ -16,6 +16,12 @@ class Event(AbstractBaseModel):
         verbose_name=_("Event Organizer")
     )
 
+    ticket_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name=_("Ticket Prcie")
+    )
+
     description = models.TextField(verbose_name=_("Event Description"))
 
     start_date = models.DateTimeField(
@@ -111,6 +117,31 @@ class Reservation(AbstractBaseModel):
         return f"Reservation for {self.user} at {self.event.name}"
 
 
+class TicketCategoryPrice(AbstractBaseModel):
+    category = models.ForeignKey(
+        DataLookup,
+        on_delete=models.CASCADE,
+        limit_choices_to={"type": "ticket_category_type"},
+        related_name='+',
+        verbose_name=_("Ticket Category")
+    )
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name=_("Price")
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("Ticket Category Price")
+        verbose_name_plural = _("Ticket Category Prices")
+        db_table = "ticket_category_price"
+
+    def __str__(self) -> str:
+        return f"{self.price} for {self.category.name} ticket"
+
+
 class Ticket(AbstractBaseModel):
     event = models.ForeignKey(
         Event,
@@ -136,9 +167,9 @@ class Ticket(AbstractBaseModel):
     )
 
     unit_price = models.DecimalField(
-        verbose_name=_("Price"),
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        verbose_name=_("Unit Price")
     )
 
     class Meta:

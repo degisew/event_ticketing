@@ -230,6 +230,23 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
 }
 
+# CELERY configuration
+CELERY_BROKER_URL = env("CELERY_BROKER", default="redis://127.0.0.1:6379/0", cast=str,)
+CELERY_RESULT_BACKEND = env("CELERY_BACKEND", cast=str, default="redis://127.0.0.1:6379/0")
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'jegisew21@gmail.com'
+EMAIL_HOST_PASSWORD = env("APP_PASSWORD", cast=str)
+
+# OPTIONAL
+DEFAULT_FROM_EMAIL = 'Degisew Mengist <jegisew21@gmail.com>'
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

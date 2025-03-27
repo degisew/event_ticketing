@@ -15,6 +15,7 @@ class EventResponseSerializer(serializers.ModelSerializer):
             'organizer',
             'description',
             'start_date',
+            'ticket_price',
             'end_date',
             'is_active',
             'capacity',
@@ -33,6 +34,7 @@ class EventSerializer(serializers.ModelSerializer):
             'description',
             'start_date',
             'end_date',
+            'ticket_price',
             'is_active',
             'capacity',
             'location'
@@ -121,8 +123,6 @@ class TicketResponseSerializer(serializers.ModelSerializer):
         ]
 
 
-# TODO: Tickets should not be created directly.
-# TODO: They should be created when a reservation is made.
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
@@ -166,8 +166,9 @@ class PaymentSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data):
+        user = self.context['request'].user
         try:
-            return PaymentService.process_payment(validated_data)
+            return PaymentService.process_payment(user, validated_data)
         except Exception as e:
             raise e
 
