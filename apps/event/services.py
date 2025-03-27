@@ -13,17 +13,16 @@ from apps.event.enums import (
 from apps.event.exceptions import NotEnoughSeatsAvailableError
 from apps.event.models import Payment, Reservation, ReservationItem, Ticket
 from apps.core.utils import generate_unique_code
+from apps.event.tasks import send_ticket_email
 
 
 class ReservationService:
     @staticmethod
     @transaction.atomic
     def create_reservation(validated_data) -> Reservation:
-        print("#####", validated_data)
+
         event = validated_data["event"]
         seats = validated_data.pop("quantity")
-
-        print("#####", validated_data)
 
         if event.available_seats < seats:
             raise NotEnoughSeatsAvailableError("Not enough seats available.")
@@ -53,37 +52,21 @@ class ReservationService:
                 payment_status=payment_status,
                 status=status,
                 code=code,
-                **validated_data
+                **validated_data,
             )
 
             # update available seats
             event.update_available_seats(seats)
 
             tickets = ReservationService.create_tickets(event, reservation, seats)
-            reservation_items = ReservationService.create_reservation_items(
-                reservation, tickets
-            )
+            ReservationService.create_reservation_items(reservation, tickets)
 
-            print(
-                {
-                    "reservation": reservation,
-                    "tickets": tickets,
-                    "reservation_items": reservation_items,
-                }
-            )
             return reservation
         except Exception as e:
             raise e
 
-    # def cancel_reservation(self, reservation):
-    #     reservation.event.available_seats += reservation.seats
-    #     reservation.event.save()
-    #     reservation.delete()
-
-    # TODO: Fix seat number generation issue
     @staticmethod
     def create_single_ticket(i, event, reservation) -> Ticket:
-        print("111", event.capacity - event.available_seats)
         seat_number = event.capacity - event.available_seats + i
         return Ticket.objects.create(
             event=event,
@@ -92,8 +75,7 @@ class ReservationService:
             status=DataLookup.objects.get(
                 type=TicketStatuses.TYPE.value, value=TicketStatuses.ACTIVE.value
             ),
-            # TODO: Update this to be dynamic
-            unit_price=Decimal("200.00"),
+            unit_price=event.ticket_price,
         )
 
     @staticmethod
@@ -122,7 +104,7 @@ class PaymentService:
         try:
             total_amount = ReservationItem.objects.filter(
                 reservation=reservation
-            ).aggregate(total_amount=Sum('ticket__unit_price'))["total_amount"]
+            ).aggregate(total_amount=Sum("ticket__unit_price"))["total_amount"]
             return total_amount or 0
         except DatabaseError as e:
             raise e
@@ -156,9 +138,13 @@ class PaymentService:
     @staticmethod
     def update_ticket_statuses(reservation):
         try:
-            tickets = list(Ticket.objects.filter(
-                id__in=reservation.reservation_items.values_list('ticket_id', flat=True)
-            ))
+            tickets = list(
+                Ticket.objects.filter(
+                    id__in=reservation.reservation_items.values_list(
+                        "ticket_id", flat=True
+                    )
+                )
+            )
 
             if not tickets:
                 return
@@ -171,6 +157,9 @@ class PaymentService:
                 ticket.status = sold_status
 
             Ticket.objects.bulk_update(tickets, ["status"])
+
+            # just return tickets to reuse somewhere
+            return tickets
         except ObjectDoesNotExist:
             raise ValueError("Invalid ticket status lookup.")
         except DatabaseError as e:
@@ -178,14 +167,28 @@ class PaymentService:
 
     @staticmethod
     @transaction.atomic
-    def process_payment(validated_data):
+    def process_payment(user, validated_data):
         try:
             reservation = validated_data["reservation"]
-
             total_amount = PaymentService.calculate_total_amount(reservation)
             payment = PaymentService.create_payment_record(reservation, total_amount)
+
             PaymentService.update_reservation_status(reservation)
+
             PaymentService.update_ticket_statuses(reservation)
+
+            tickets = list(Ticket.objects.filter(
+                reservation_items__reservation=reservation
+            ).values("ticket_number", "seat_number", "event"))
+
+            for t in tickets:
+                print("THIS", t.get('ticket_number', ''))
+
+            if tickets:
+                recipient_email = [user.email]
+
+                # Trigger the Celery task in the background
+                send_ticket_email.delay(tickets, recipient_email)
 
             return payment
 
