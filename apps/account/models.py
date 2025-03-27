@@ -38,7 +38,7 @@ class User(AbstractUser, AbstractBaseModel):
         null=True,
         blank=True,
         related_name="+",
-        limit_choices_to={"type": "account_state"},
+        limit_choices_to={"type": "account_state_type"},
     )
 
     username = None

@@ -53,16 +53,19 @@ class PasswordChangeViewSet(viewsets.ViewSet):
 
 
 class USerProfileViewSet(AbstractModelViewSet):
-    permission_classes = [USerProfileAccessPolicy]
+    permission_classes = [IsAuthenticated]
     http_method_names = ["get", "post", "patch"]
     serializer_class = UserProfileSerializer
 
-    @property
-    def access_policy(self):
-        return self.permission_classes[0]
-
     def get_queryset(self):
-        return self.access_policy.scope_queryset(
-            request=self.request,
-            queryset=UserProfile.objects.all()
-        )
+        return UserProfile.objects.filter(user=self.request.user)
+
+    # @property
+    # def access_policy(self):
+    #     return self.permission_classes[0]
+
+    # def get_queryset(self):
+    #     return self.access_policy.scope_queryset(
+    #         request=self.request,
+    #         queryset=UserProfile.objects.all()
+    #     )

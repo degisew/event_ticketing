@@ -1,0 +1,35 @@
+[
+    {
+        "model": "account.role",
+        "pk": "57a2c289-8ad5-4d9e-8867-af456d682c81",
+        "fields": {
+            "created_at": "2025-03-27T11:23:36.175Z",
+            "updated_at": "2025-03-27T11:23:36.175Z",
+            "deleted_at": null,
+            "name": "User",
+            "code": "user"
+        }
+    },
+    {
+        "model": "account.role",
+        "pk": "837aa7f1-865e-4053-a228-614219669994",
+        "fields": {
+            "created_at": "2025-03-27T11:23:43.800Z",
+            "updated_at": "2025-03-27T11:23:43.800Z",
+            "deleted_at": null,
+            "name": "Organizer",
+            "code": "organizer"
+        }
+    },
+    {
+        "model": "account.role",
+        "pk": "b5e1d7c9-d555-4774-9edf-bef5384e8e7c",
+        "fields": {
+            "created_at": "2025-03-27T11:23:26.825Z",
+            "updated_at": "2025-03-27T11:23:26.825Z",
+            "deleted_at": null,
+            "name": "Admin",
+            "code": "admin"
+        }
+    }
+]
