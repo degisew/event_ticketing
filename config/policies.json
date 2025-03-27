@@ -30,12 +30,27 @@
                     "update"
                 ],
                 "principal": [
-                    "role:user"
+                    "role:user",
+                    "role:organizer"
                 ],
                 "effect": "allow"
             }
         ]
     },
+    "RoleAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
+    
     "DataLookupAccessPolicy": {
         "statements": [
             {
@@ -57,6 +72,123 @@
                 ],
                 "principal": [
                     "role:admin"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
+    "EventAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:organizer"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "list",
+                    "retrieve"
+                ],
+                "principal": [
+                    "role:user"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
+    "TicketAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "list",
+                    "retrieve"
+                ],
+                "principal": [
+                    "role:organizer"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
+    "ReservationAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "list",
+                    "retrieve",
+                    "create",
+                    "update"
+                ],
+                "principal": [
+                    "role:organizer"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "list",
+                    "retrieve",
+                    "create",
+                    "update"
+                ],
+                "principal": [
+                    "role:user"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
+    "PaymentAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "list",
+                    "retrieve",
+                    "create",
+                    "update"
+                ],
+                "principal": [
+                    "role:organizer"
                 ],
                 "effect": "allow"
             }

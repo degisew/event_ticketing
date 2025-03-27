@@ -1,5 +1,6 @@
 from datetime import datetime
 import hashlib
+import random
 
 
 def generate_password(full_name):
@@ -23,16 +24,12 @@ def generate_unique_code(
     Returns:
         str: A generated unique code.
     """
-    timestamp = (
-        datetime.now().strftime("%Y%m%d%H%M%S") if include_timestamp else ""
-    )
-    base_string = (
-        f"{unique_identifier}-{timestamp}"
-        if timestamp
-        else str(unique_identifier)
-    )
-    hashed_part = (
-        hashlib.md5(base_string.encode()).hexdigest()[:length].upper()
-    )
+    random_suffix = "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=4))
 
-    return f"{prefix}-{hashed_part}"
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S") if include_timestamp else ""
+    base_string = (
+        f"{unique_identifier}-{timestamp}" if timestamp else str(unique_identifier)
+    )
+    hashed_part = hashlib.md5(base_string.encode()).hexdigest()[:length].upper()
+
+    return f"{prefix}-{hashed_part}-{random_suffix}"

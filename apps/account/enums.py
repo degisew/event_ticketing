@@ -8,7 +8,7 @@ class RoleCode(enum.Enum):
 
 
 class AccountState(enum.Enum):
-    TYPE = "account_state"
+    TYPE = "account_state_type"
 
     ACTIVE = "active"
     INACTIVE = "inactive"

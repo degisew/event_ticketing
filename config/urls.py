@@ -30,7 +30,8 @@ from drf_spectacular.views import (
 
 api_v1_patterns = [
     path("account/", include("apps.account.urls")),
-    path("core/", include("apps.core.urls"))
+    path("core/", include("apps.core.urls")),
+    path("event/", include("apps.event.urls"))
 ]
 
 urlpatterns = [

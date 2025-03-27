@@ -1,0 +1,236 @@
+[
+    {
+        "model": "core.datalookup",
+        "pk": "48b78c65-9f60-4b80-a565-bb4da6e53a21",
+        "fields": {
+            "created_at": "2025-03-27T11:30:22.640Z",
+            "updated_at": "2025-03-27T11:30:22.640Z",
+            "deleted_at": null,
+            "type": "reservation_status",
+            "name": "Pending",
+            "value": "reservation_pending",
+            "description": "Pending reservation status.",
+            "category": "EVENT",
+            "index": 0,
+            "is_default": true,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "4bf27b95-14be-4ca3-b854-d2a292ee84c0",
+        "fields": {
+            "created_at": "2025-03-27T11:27:54.763Z",
+            "updated_at": "2025-03-27T11:27:54.763Z",
+            "deleted_at": null,
+            "type": "reservation_payment_status",
+            "name": "Paid",
+            "value": "reservation_payment_paid",
+            "description": "Paid payment status.",
+            "category": "EVENT",
+            "index": 1,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "4c831836-4125-4ca9-9151-f363212cfa35",
+        "fields": {
+            "created_at": "2025-03-27T11:28:41.670Z",
+            "updated_at": "2025-03-27T11:28:41.670Z",
+            "deleted_at": null,
+            "type": "reservation_payment_status",
+            "name": "Canceled",
+            "value": "reservation_payment_canceled",
+            "description": "Canceled payment status.",
+            "category": "EVENT",
+            "index": 2,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "4e7c4d9b-b97a-4cf4-bdf9-8e50c3f82fe1",
+        "fields": {
+            "created_at": "2025-03-27T11:25:21.001Z",
+            "updated_at": "2025-03-27T11:25:21.001Z",
+            "deleted_at": null,
+            "type": "account_state_type",
+            "name": "Active",
+            "value": "active",
+            "description": "An active accout status.",
+            "category": "ACCOUNT",
+            "index": 0,
+            "is_default": true,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "50423984-7397-497c-b59b-be0844b673fb",
+        "fields": {
+            "created_at": "2025-03-27T11:29:30.401Z",
+            "updated_at": "2025-03-27T11:29:30.401Z",
+            "deleted_at": null,
+            "type": "reservation_payment_status",
+            "name": "Refunded",
+            "value": "reservation_payment_refunded",
+            "description": "Refunded payment status.",
+            "category": "EVENT",
+            "index": 3,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "54450e1c-b98f-42a6-ae2c-9245cd074fa6",
+        "fields": {
+            "created_at": "2025-03-27T11:33:26.565Z",
+            "updated_at": "2025-03-27T11:33:26.565Z",
+            "deleted_at": null,
+            "type": "reservation_status",
+            "name": "Refunded",
+            "value": "reservation_refunded",
+            "description": "Refunded Reservation Status.",
+            "category": "EVENT",
+            "index": 4,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "62b9fb86-208d-45fd-b8c8-4c9b91665cd1",
+        "fields": {
+            "created_at": "2025-03-27T11:34:49.952Z",
+            "updated_at": "2025-03-27T11:34:49.952Z",
+            "deleted_at": null,
+            "type": "ticket_status",
+            "name": "Sold",
+            "value": "ticket_status_sold",
+            "description": "Sold Ticket Status",
+            "category": "EVENT",
+            "index": 1,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "633bb06c-589b-4824-9992-84210519f97a",
+        "fields": {
+            "created_at": "2025-03-27T11:31:56.738Z",
+            "updated_at": "2025-03-27T11:31:56.738Z",
+            "deleted_at": null,
+            "type": "reservation_status",
+            "name": "Canceled",
+            "value": "reservation_canceled",
+            "description": "Canceled Reservation Status.",
+            "category": "EVENT",
+            "index": 2,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "7aa2ee92-06ad-48eb-aa99-63fd039c8111",
+        "fields": {
+            "created_at": "2025-03-27T11:34:18.612Z",
+            "updated_at": "2025-03-27T11:34:18.612Z",
+            "deleted_at": null,
+            "type": "ticket_status",
+            "name": "Active",
+            "value": "ticket_status_active",
+            "description": "Active Ticket Status.",
+            "category": "EVENT",
+            "index": 0,
+            "is_default": true,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "8340dab8-d78d-4078-b3dc-bf45b417f4cf",
+        "fields": {
+            "created_at": "2025-03-27T11:27:17.580Z",
+            "updated_at": "2025-03-27T11:27:17.580Z",
+            "deleted_at": null,
+            "type": "reservation_payment_status",
+            "name": "Pending",
+            "value": "reservation_payment_pending",
+            "description": "Pending payment status.",
+            "category": "EVENT",
+            "index": 0,
+            "is_default": true,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "a890985d-ee27-4a3d-9e01-6f09b415e5b8",
+        "fields": {
+            "created_at": "2025-03-27T11:32:43.933Z",
+            "updated_at": "2025-03-27T11:32:43.933Z",
+            "deleted_at": null,
+            "type": "reservation_status",
+            "name": "Completed",
+            "value": "reservation_completed",
+            "description": "Completed Reservation Status.",
+            "category": "EVENT",
+            "index": 3,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "c5f5fcdb-8469-47d3-a24a-ec5f2dabf31a",
+        "fields": {
+            "created_at": "2025-03-27T11:30:56.257Z",
+            "updated_at": "2025-03-27T11:30:56.257Z",
+            "deleted_at": null,
+            "type": "reservation_status",
+            "name": "Confirmed",
+            "value": "reservation_confirmed",
+            "description": "Confirmed Reservation status.",
+            "category": "EVENT",
+            "index": 1,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    },
+    {
+        "model": "core.datalookup",
+        "pk": "dd82d5a3-73ad-4c8c-8086-9ad21d34e4e6",
+        "fields": {
+            "created_at": "2025-03-27T11:26:08.211Z",
+            "updated_at": "2025-03-27T11:26:08.211Z",
+            "deleted_at": null,
+            "type": "account_state_type",
+            "name": "Inactive",
+            "value": "inactive",
+            "description": "An inactive account status.",
+            "category": "ACCOUNT",
+            "index": 1,
+            "is_default": false,
+            "is_active": false,
+            "remark": ""
+        }
+    }
+]
