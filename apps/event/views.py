@@ -19,15 +19,13 @@ from apps.event.serializers import (
 
 
 class EventViewSet(AbstractModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [EventAccessPolicy]
     serializer_class = EventSerializer
     queryset = Event.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_classes = [EventFilter]
 
 
-# TODO: Tickets should not be created directly.
-# TODO: They should be created when a reservation is made.
 class TickerViewSet(AbstractModelViewSet):
     permission_classes = [TicketAccessPolicy]
     http_method_names = ['get']
@@ -38,7 +36,7 @@ class TickerViewSet(AbstractModelViewSet):
 
 
 class ReservationViewSet(AbstractModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [ReservationAccessPolicy]
     serializer_class = ReservationSerializer
     queryset = Reservation.objects.all()
     filter_backends = [DjangoFilterBackend]
@@ -46,7 +44,7 @@ class ReservationViewSet(AbstractModelViewSet):
 
 
 class PaymentViewSet(AbstractModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [PaymentAccessPolicy]
     http_method_names = ['get', 'post']
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()

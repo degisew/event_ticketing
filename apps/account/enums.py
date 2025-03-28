@@ -4,7 +4,8 @@ import enum
 class RoleCode(enum.Enum):
 
     ADMIN = "admin"
-    VENDOR = "vendor"
+    USER = "user"
+    ORGANIZER = "organizer"
 
 
 class AccountState(enum.Enum):

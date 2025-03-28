@@ -50,7 +50,6 @@
             }
         ]
     },
-    
     "DataLookupAccessPolicy": {
         "statements": [
             {

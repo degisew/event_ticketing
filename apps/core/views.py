@@ -41,7 +41,7 @@ class AbstractModelViewSet(viewsets.ModelViewSet):
 
 class DataLookupViewSet(AbstractModelViewSet):
     http_method_names = ['get']
-    permission_classes = [AllowAny]
+    permission_classes = [DataLookupAccessPolicy]
     queryset = DataLookup.objects.all()
     serializer_class = DataLookupSerializer
 

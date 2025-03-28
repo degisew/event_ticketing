@@ -3,10 +3,9 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from apps.core.validators import (
     validate_email,
-    validate_phone_number,
     validate_password
 )
-from apps.account.enums import AccountState
+from apps.account.enums import AccountState, RoleCode
 from apps.account.models import Role, UserProfile
 from apps.core.models import DataLookup
 from apps.core.serializers import DataLookupSerializer
@@ -66,9 +65,13 @@ class UserSerializer(serializers.ModelSerializer):
                 type=AccountState.TYPE.value,
                 value=AccountState.ACTIVE.value
             )
+            role = Role.objects.get(
+                value=RoleCode.USER.value
+            )
             # Create the user
             user = super().create(validated_data)
             user.state = account_state
+            user.role = role
             user.password = make_password(password)
             user.save()
             return user

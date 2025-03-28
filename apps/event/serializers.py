@@ -107,7 +107,6 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 class TicketResponseSerializer(serializers.ModelSerializer):
     event = EventSerializer()
-    reservation = ReservationSerializer()
 
     class Meta:
         model = Ticket
@@ -117,7 +116,6 @@ class TicketResponseSerializer(serializers.ModelSerializer):
             'ticket_number',
             'seat_number',
             'status',
-            'reservation',
             'created_at',
             'updated_at'
         ]

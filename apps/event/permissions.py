@@ -1,25 +1,25 @@
-from rest_access_policy import AccessPolicy
+from apps.core.permissions import AbstractAccessPolicy
 
 
-class EventAccessPolicy(AccessPolicy):
+class EventAccessPolicy(AbstractAccessPolicy):
     @classmethod
     def scope_queryset(cls, request, queryset):
         return queryset
 
 
-class TicketAccessPolicy(AccessPolicy):
+class TicketAccessPolicy(AbstractAccessPolicy):
     @classmethod
     def scope_queryset(cls, request, queryset):
         return queryset
 
 
-class ReservationAccessPolicy(AccessPolicy):
+class ReservationAccessPolicy(AbstractAccessPolicy):
     @classmethod
     def scope_queryset(cls, request, queryset):
         return queryset
 
 
-class PaymentAccessPolicy(AccessPolicy):
+class PaymentAccessPolicy(AbstractAccessPolicy):
     @classmethod
     def scope_queryset(cls, request, queryset):
         return queryset
