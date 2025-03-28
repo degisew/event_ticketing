@@ -66,7 +66,7 @@ class UserSerializer(serializers.ModelSerializer):
                 value=AccountState.ACTIVE.value
             )
             role = Role.objects.get(
-                value=RoleCode.USER.value
+                code=RoleCode.USER.value
             )
             # Create the user
             user = super().create(validated_data)
