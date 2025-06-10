@@ -1,141 +1,228 @@
-# 🎟️ Online Event Ticketing System
+# Event Ticket Reservation
 
-An advanced Online Event Ticketing System that enables users to seamlessly browse, book, and manage event tickets. Designed for organizers to create and manage events, and for attendees to easily purchase tickets and track their bookings.
+<div align="center">
 
-## Prerequisites
+<!-- ![Project Logo](https://via.placeholder.com/150x150/0066cc/ffffff?text=LOGO) -->
 
-Ensure the following tools are installed on your machine before proceeding:
+**A scalable event ticket booking platform built with modern backend technologies**
 
-- [Docker](https://www.docker.com/)
-- [Docker Compose](https://docs.docker.com/compose/)
-- [Git](https://git-scm.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://python.org)
+[![Django](https://img.shields.io/badge/Django-5.x-green.svg)](https://djangoproject.com)
+[![Docker](https://img.shields.io/badge/Docker-20.10+-blue.svg)](https://docker.com)
 
-## Getting Started
+**Contact**: [degisew.mengist21@gmail.com](mailto:degisew.mengist21@gmail.com) | [LinkedIn](https://linkedin.com/in/degisew-mengist)
 
-Follow these instructions to get the project up and running on your local machine.
+</div>
 
-### 1. Clone the Repository
+## Overview
+
+An Online Event Ticketing System that enables users to seamlessly browse, book, and manage event tickets. Designed for organizers to create and manage events, and for attendees to easily purchase tickets and track their bookings.
+
+**Key Features**:
+
+- Secure JWT authentication and role-based access control.
+- Background task processing with Celery, and Redis.
+- QR code ticket generation and sending them through email.
+- Ticket booking before payment with expiration time.
+- Containerized deployment with Docker.
+
+<!-- **Links**:
+
+- **Portfolio**: [Portfolio](https://degisew-portfolio.netlify.com)
+- **GitHub**: [GitHub](https://github.com/degisew)
+- **LinkedIn**: [LinkedIn](https://linkedin.com/in/degisew-mengist) -->
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Setup](#setup)
+- [API Reference](#api-reference)
+- [Architecture](#architecture)
+  <!-- - [Testing](#testing) -->
+- [Deployment](#deployment)
+
+## Quick Start
 
 ```bash
-git clone git@github.com:degisew/event_ticketing.git
+# Clone the repo
+git clone https://github.com/degisew/event_ticketing.git
 cd event_ticketing
-```
 
-### 2. Create a `.env` File
-
-Create a `.env` file in the root of your project directory. This file will contain environment variables for the database and pgAdmin4. Here's an example `.env` file:
-
-```bash
-# pgAdmin4
-PGADMIN_DEFAULT_EMAIL=admin@example.com
-PGADMIN_DEFAULT_PASSWORD=<your-pgadmin-password>
-```
-
-Make sure to replace `<your-pgadmin-password>` with strong, secure values.
-
-### 3. Build and Run the Containers
-
-Use Docker Compose to build and spin up the containers:
-
-```bash
+# Run with Docker
 docker-compose up --build
+
+# OR run locally
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements/dev.txt
+python manage.py runserver
 ```
 
-This command will build and run the containers for:
-
-- **PostgreSQL** (as a database backend)
-- **pgAdmin4** (To manage the PostgreSQL database)
-- **Django application** (An API server)
-
-### 4. Access the Services
-
-- **Django API**: Open your browser and navigate to [http://localhost:8000](http://localhost:8000) to access the Django API.
-
-- **pgAdmin4**: Go to [http://localhost:8001](http://localhost:8001) to access pgAdmin4. Use the credentials from your `.env` file to log in.
-
-  - **Email**: `PGADMIN_DEFAULT_EMAIL` from the `.env` file (e.g., `admin@example.com`)
-  - **Password**: `PGADMIN_DEFAULT_PASSWORD` from the `.env` file
-
-### 5. Managing PostgreSQL in pgAdmin
-
-Once you're logged in to pgAdmin4, follow these steps to add the PostgreSQL server:
-
-1. Click on "Add New Server".
-2. Under the **General** tab, set a name for the server (e.g., `waga DB`).
-3. Under the **Connection** tab, enter the following details:
-   - **Host**: `db` (this is the service name defined in the `docker-compose.yml` file)
-   - **Port**: `5432`
-   - **Username**: `POSTGRES_USER` from the `.env` file (e.g., `XgkJUcqxEw`)
-   - **Password**: `POSTGRES_PASSWORD` from the `.env` file
-
-Click **Save** to add the server, and you should now be able to manage the `waga` database from pgAdmin.
+**Access**: [http://localhost:8000/api/v1/docs](http://localhost:8000/api/v1/docs) for API docs.
 
 ## Project Structure
 
 ```bash
 ├── apps/                 # Custom Apps collection
 ├── config/               # Project Configurations
-│     └── settings/       # Project settings for dev,test, and prod environment
 ├── docker
-│     └── dev/          
+│     └── dev/
 │          └── Dockerfile # Django API Dockerfile for development environment
-├── docs/                 # Documentation files
-├── scripts/              # Custom scripts
+├── tests/                 # automated tests
+├── requirements/         # requirements.txt files collection
 ├── .env                  # Environment variables (you will create this)
 ├── compose.yaml          # Docker Compose configuration file
 └── README.md             # This README file
 ```
 
-## Useful Docker Commands
+## Setup
 
-Here are some helpful commands to manage the Docker environment:
+<details>
+<summary><strong>Show Setup Details</strong></summary>
 
-- **Stop all running containers**:
+### Prerequisites
 
-  ```bash
-  docker-compose down
-  ```
+- Python 3.10+
+- Docker 20.10+ & Docker Compose 1.29+
+- PostgreSQL 14+ (for local setup)
+- Git 2.30+
 
-- **Rebuild and restart containers**:
+### Instructions
 
-  ```bash
-  docker-compose up --build
-  ```
+1. **Clone the Repository**:
 
-- **Check logs for a specific service**:
+   ```bash
+   git clone https://github.com/degisew/event_ticketing.git
+   cd event_ticketing
+   ```
 
-  ```bash
-  docker-compose logs <service-name>
-  ```
+2. **Configure Environment**:
 
-  For example:
+   ```bash
+   Create a .env file with-in your root project directory and store secure values.
+   ```
 
-  ```bash
-  docker-compose logs api
-  ```
+   Example `.env`:
 
-- **Access a running container**:
+   ```bash
+   # Database
+   POSTGRES_USER=your_db_user
+   POSTGRES_PASSWORD=your_db_password
+   POSTGRES_DB=your_db_name
 
-  ```bash
-  docker exec -it <container_name> /bin/bash
-  ```
+   # FastAPI
+   SECRET_KEY=your_secret_key
+   DB_USER=your_database_user
 
-  For example, to access the Django API container:
+   # Optional: pgAdmin
+   PGADMIN_DEFAULT_EMAIL=admin@example.com
+   PGADMIN_DEFAULT_PASSWORD=your_pgadmin_password
+   ```
 
-  ```bash
-  docker exec -it <api-container-name> /bin/bash
-  ```
+3. **Run the Application**:
+   - **Docker (Recommended)**:
 
-## Troubleshooting
+     ```bash
+     docker-compose up --build
+     ```
 
-- **Django server not reachable**: Ensure the Django app is running on `0.0.0.0` and bound to port 8000 (this is handled by the Docker setup).
-- **Database connection errors**: Verify that the database credentials in the `.env` file are correct, and that the PostgreSQL service is up and healthy.
+   - **Local Development**:
 
-## Volumes
+     ```bash
+     python -m venv venv
+     source venv/bin/activate
+     pip install -r requirements/dev.txt
+     python manage.py migrate # run migrations
+     python manage.py runserver # run development server
+     ```
 
-The `docker-compose.yml` file defines two Docker volumes:
+4. **Access Services**:
+   - API: [http://localhost:8000](http://localhost:8000)
+   - API Docs: [http://localhost:8000/api/v1/docs](http://localhost:8000/api/v1/docs)
+   - pgAdmin (if included): [http://localhost:8001](http://localhost:8001)
 
-- `waga_dev_db_data`: Stores the PostgreSQL database data.
-- `waga_dev_pgadmin_data`: Stores pgAdmin4 configuration data.
+</details>
 
-These volumes ensure that your data persists across container restarts.
+## API Reference
+
+<details>
+<summary><strong>Show API Reference</strong></summary>
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/account/users` | POST | Register a new user |
+| `/api/v1/account/users/profile/edit` | PATCH | Update current user profile |
+| `/api/v1/events` | GET | List all events |
+| `/api/v1/events` | POST | Create a new event |
+| `/api/v1/reservations` | POST | Reserve a ticket for a specific event |
+| `/api/v1/payments` | POST | Create Payment for a current user reservations|
+| `/api/v1/reservations/me` | GET | Get all reservations for a current user|
+
+**Full Docs**: [http://localhost:8000/api/v1/docs](http://localhost:8000/api/v1/docs)
+
+</details>
+
+## Architecture
+
+**Tech Stack**:
+
+- **Backend**: Django, and Django Rest Framework for RESTful APIs
+- **Background Task**: Celery, and Redis for background task processing
+- **Database**: PostgreSQL
+- **DevOps**: Docker, Docker-compose
+
+<!-- ## Testing
+
+<details>
+<summary><strong>Show Testing Details</strong></summary>
+
+```bash
+# Run tests With coverage
+docker compose exec api pytest
+
+- 85%+ test coverage with `pytest` and `coverage.py`.
+- Includes unit tests (models, utilities) and integration tests (API endpoints).
+```
+
+</details> -->
+
+## Deployment
+
+<details>
+<summary><strong>Show Deployment Details</strong></summary>
+
+### Production
+
+```bash
+
+# Run with Docker Compose
+docker-compose -f compose.prod.yaml up -d
+```
+
+### Environment Variables
+
+```bash
+DATABASE_URL=postgresql://user:pass@host:5432/db
+REDIS_URL=redis://host:6379/0
+SECRET_KEY=your-secret-key
+ALLOWED_HOSTS=your-domain.com
+```
+
+</details>
+
+## License
+
+MIT License. See [LICENSE](LICENSE).
+
+<div align="center">
+
+**⭐ Star this repo if you found it useful!**
+
+Built by [Degisew Mengist](https://github.com/degisew)
+
+[⬆ Back to Top](#event-ticket-reservation)
+
+</div>
