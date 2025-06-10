@@ -159,7 +159,6 @@ python manage.py runserver
 | `/api/v1/events` | POST | Create a new event |
 | `/api/v1/reservations` | POST | Reserve a ticket for a specific event |
 | `/api/v1/payments` | POST | Create Payment for a current user reservations|
-| `/api/v1/reservations/me` | GET | Get all reservations for a current user|
 
 **Full Docs**: [http://localhost:8000/api/v1/docs](http://localhost:8000/api/v1/docs)
 
