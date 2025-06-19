@@ -8,11 +8,11 @@ from apps.event.permissions import (
 
 )
 from apps.event.filters import EventFilter, TicketFilter, ReservationFilter
-from apps.event.models import Event, Payment, Reservation, Ticket
+from apps.event.models import Event, Transaction, Reservation, Ticket
 from apps.core.views import AbstractModelViewSet
 from apps.event.serializers import (
     EventSerializer,
-    PaymentSerializer,
+    TransactionSerializer,
     ReservationSerializer,
     TicketResponseSerializer
 )
@@ -46,5 +46,5 @@ class ReservationViewSet(AbstractModelViewSet):
 class PaymentViewSet(AbstractModelViewSet):
     permission_classes = [PaymentAccessPolicy]
     http_method_names = ['get', 'post']
-    serializer_class = PaymentSerializer
-    queryset = Payment.objects.all()
+    serializer_class = TransactionSerializer
+    queryset = Transaction.objects.all()

@@ -11,7 +11,7 @@ from apps.event.enums import (
     TicketStatuses,
 )
 from apps.event.exceptions import NotEnoughSeatsAvailableError
-from apps.event.models import Payment, Reservation, ReservationItem, Ticket
+from apps.event.models import Transaction, Reservation, Ticket
 from apps.core.utils import generate_unique_code
 from apps.event.tasks import send_ticket_email
 
@@ -98,21 +98,23 @@ class ReservationService:
         return items
 
 
-class PaymentService:
+class TransactionService:
     @staticmethod
     def calculate_total_amount(reservation):
-        try:
-            total_amount = ReservationItem.objects.filter(
-                reservation=reservation
-            ).aggregate(total_amount=Sum("ticket__unit_price"))["total_amount"]
-            return total_amount or 0
-        except DatabaseError as e:
-            raise e
+        # TODO: Do this by fetching a price of a given ticket type by ticket quantity
+        pass
+        # try:
+        #     total_amount = ReservationItem.objects.filter(
+        #         reservation=reservation
+        #     ).aggregate(total_amount=Sum("ticket__unit_price"))["total_amount"]
+        #     return total_amount or 0
+        # except DatabaseError as e:
+        #     raise e
 
     @staticmethod
     def create_payment_record(reservation, amount):
         try:
-            return Payment.objects.create(reservation=reservation, amount=amount)
+            return Transaction.objects.create(reservation=reservation, amount=amount)
         except IntegrityError as e:
             raise e
         except DatabaseError as e:
@@ -170,12 +172,12 @@ class PaymentService:
     def process_payment(user, validated_data):
         try:
             reservation = validated_data["reservation"]
-            total_amount = PaymentService.calculate_total_amount(reservation)
-            payment = PaymentService.create_payment_record(reservation, total_amount)
+            total_amount = TransactionService.calculate_total_amount(reservation)
+            payment = TransactionService.create_payment_record(reservation, total_amount)
 
-            PaymentService.update_reservation_status(reservation)
+            TransactionService.update_reservation_status(reservation)
 
-            PaymentService.update_ticket_statuses(reservation)
+            TransactionService.update_ticket_statuses(reservation)
 
             tickets = list(Ticket.objects.filter(
                 reservation_items__reservation=reservation
