@@ -131,6 +131,28 @@
             }
         ]
     },
+    "TicketTypeAccessPolicy": {
+        "statements": [
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:admin"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "*"
+                ],
+                "principal": [
+                    "role:organizer"
+                ],
+                "effect": "allow"
+            }
+        ]
+    },
     "ReservationAccessPolicy": {
         "statements": [
             {
@@ -168,7 +190,7 @@
             }
         ]
     },
-    "PaymentAccessPolicy": {
+    "TransactionAccessPolicy": {
         "statements": [
             {
                 "action": [
@@ -188,6 +210,15 @@
                 ],
                 "principal": [
                     "role:organizer"
+                ],
+                "effect": "allow"
+            },
+            {
+                "action": [
+                    "create"
+                ],
+                "principal": [
+                    "role:*"
                 ],
                 "effect": "allow"
             }
