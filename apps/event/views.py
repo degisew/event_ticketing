@@ -1,8 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import AllowAny
 from apps.event.permissions import (
     EventAccessPolicy,
-    PaymentAccessPolicy,
+    TransactionAccessPolicy,
     ReservationAccessPolicy,
     TicketAccessPolicy,
 
@@ -26,7 +25,7 @@ class EventViewSet(AbstractModelViewSet):
     filterset_classes = [EventFilter]
 
 
-class TickerViewSet(AbstractModelViewSet):
+class TicketViewSet(AbstractModelViewSet):
     permission_classes = [TicketAccessPolicy]
     http_method_names = ['get']
     serializer_class = TicketResponseSerializer
@@ -43,8 +42,8 @@ class ReservationViewSet(AbstractModelViewSet):
     filterset_classes = [ReservationFilter]
 
 
-class PaymentViewSet(AbstractModelViewSet):
-    permission_classes = [PaymentAccessPolicy]
+class TransactionViewSet(AbstractModelViewSet):
+    permission_classes = [TransactionAccessPolicy]
     http_method_names = ['get', 'post']
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()

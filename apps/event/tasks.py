@@ -1,5 +1,3 @@
-# from django.core.mail import send_mail
-# from io import BytesIO
 from django.conf import settings
 from django.core.mail import EmailMessage
 from apps.event.utils import generate_qr_code
