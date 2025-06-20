@@ -21,7 +21,7 @@ class TicketStatuses(Enum):
     SOLD = 'ticket_status_sold'
 
 
-class TicketType(Enum):
+class TicketTypes(Enum):
     NORMAL = "ticket_category_normal"
     VIP = "ticket_category_vip"
 
