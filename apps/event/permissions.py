@@ -19,7 +19,7 @@ class ReservationAccessPolicy(AbstractAccessPolicy):
         return queryset
 
 
-class PaymentAccessPolicy(AbstractAccessPolicy):
+class TransactionAccessPolicy(AbstractAccessPolicy):
     @classmethod
     def scope_queryset(cls, request, queryset):
         return queryset

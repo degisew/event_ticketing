@@ -1,17 +1,16 @@
-from decimal import Decimal
-from django.db import transaction
 from django.db import transaction, IntegrityError, DatabaseError
-from django.db.models import Sum
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Sum
 from apps.core.models import DataLookup
 from apps.event.enums import (
     ReservationPaymentStatuses,
+    RESERVATION_PAYMENT_STATUS_TYPE,
     ReservationStatuses,
+    RESERVATION_STATUS_TYPE,
     TicketStatuses,
+    TICKET_STATUS_TYPE
 )
 from apps.event.exceptions import NotEnoughSeatsAvailableError
-from apps.event.models import Payment, Reservation, ReservationItem, Ticket
+from apps.event.models import Transaction, Reservation, Ticket
 from apps.core.utils import generate_unique_code
 from apps.event.tasks import send_ticket_email
 
@@ -29,22 +28,24 @@ class ReservationService:
 
         try:
             payment_status = DataLookup.objects.get(
-                type="reservation_payment_status",
+                type=RESERVATION_PAYMENT_STATUS_TYPE,
                 value=ReservationPaymentStatuses.PENDING.value,
             )
 
             status = DataLookup.objects.get(
-                type="reservation_status", value=ReservationStatuses.PENDING.value
+                type=RESERVATION_STATUS_TYPE,
+                value=ReservationStatuses.PENDING.value
             )
         except DataLookup.DoesNotExist:
             # TODO: Ensure this is needed like this or raise error instead.
             payment_status = DataLookup.objects.create(
-                type="reservation_payment_status",
+                type=RESERVATION_PAYMENT_STATUS_TYPE,
                 value=ReservationPaymentStatuses.PENDING.value,
             )
 
             status = DataLookup.objects.create(
-                type="reservation_status", value=ReservationStatuses.PENDING.value
+                type=RESERVATION_STATUS_TYPE,
+                value=ReservationStatuses.PENDING.value
             )
         try:
             code = generate_unique_code("RSVP", "")
@@ -67,13 +68,12 @@ class ReservationService:
 
     @staticmethod
     def create_single_ticket(i, event, reservation) -> Ticket:
-        seat_number = event.capacity - event.available_seats + i
         return Ticket.objects.create(
             event=event,
             ticket_number=generate_unique_code("TKT", reservation.id),
-            seat_number=f"SEAT {seat_number}",
             status=DataLookup.objects.get(
-                type=TicketStatuses.TYPE.value, value=TicketStatuses.ACTIVE.value
+                type=TICKET_STATUS_TYPE,
+                value=TicketStatuses.ACTIVE.value
             ),
             unit_price=event.ticket_price,
         )
@@ -98,21 +98,23 @@ class ReservationService:
         return items
 
 
-class PaymentService:
+class TransactionService:
     @staticmethod
     def calculate_total_amount(reservation):
-        try:
-            total_amount = ReservationItem.objects.filter(
-                reservation=reservation
-            ).aggregate(total_amount=Sum("ticket__unit_price"))["total_amount"]
-            return total_amount or 0
-        except DatabaseError as e:
-            raise e
+        # TODO: Do this by fetching a price of a given ticket type by ticket quantity
+        pass
+        # try:
+        #     total_amount = ReservationItem.objects.filter(
+        #         reservation=reservation
+        #     ).aggregate(total_amount=Sum("ticket__unit_price"))["total_amount"]
+        #     return total_amount or 0
+        # except DatabaseError as e:
+        #     raise e
 
     @staticmethod
     def create_payment_record(reservation, amount):
         try:
-            return Payment.objects.create(reservation=reservation, amount=amount)
+            return Transaction.objects.create(reservation=reservation, amount=amount)
         except IntegrityError as e:
             raise e
         except DatabaseError as e:
@@ -122,11 +124,11 @@ class PaymentService:
     def update_reservation_status(reservation):
         try:
             reservation.payment_status = DataLookup.objects.get(
-                type="reservation_payment_status",
+                type=RESERVATION_PAYMENT_STATUS_TYPE,
                 value=ReservationPaymentStatuses.PAID.value,
             )
             reservation.status = DataLookup.objects.get(
-                type="reservation_status",
+                type=RESERVATION_STATUS_TYPE,
                 value=ReservationStatuses.COMPLETED.value,
             )
             reservation.save()
@@ -150,7 +152,7 @@ class PaymentService:
                 return
 
             sold_status = DataLookup.objects.get(
-                type=TicketStatuses.TYPE.value, value=TicketStatuses.SOLD.value
+                type=TICKET_STATUS_TYPE, value=TicketStatuses.SOLD.value
             )
 
             for ticket in tickets:
@@ -170,12 +172,12 @@ class PaymentService:
     def process_payment(user, validated_data):
         try:
             reservation = validated_data["reservation"]
-            total_amount = PaymentService.calculate_total_amount(reservation)
-            payment = PaymentService.create_payment_record(reservation, total_amount)
+            total_amount = TransactionService.calculate_total_amount(reservation)
+            payment = TransactionService.create_payment_record(reservation, total_amount)
 
-            PaymentService.update_reservation_status(reservation)
+            TransactionService.update_reservation_status(reservation)
 
-            PaymentService.update_ticket_statuses(reservation)
+            TransactionService.update_ticket_statuses(reservation)
 
             tickets = list(Ticket.objects.filter(
                 reservation_items__reservation=reservation

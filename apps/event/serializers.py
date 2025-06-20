@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from apps.account.serializers import UserSerializer
-from apps.event.models import Event, Ticket, Reservation, Payment
+from apps.event.models import Event, Ticket, Reservation, Transaction
 from apps.core.utils import generate_unique_code
-from apps.event.services import PaymentService, ReservationService
+from apps.event.services import TransactionService, ReservationService
 
 
 class EventResponseSerializer(serializers.ModelSerializer):
@@ -48,7 +48,7 @@ class EventSerializer(serializers.ModelSerializer):
         organizer = self.context['request'].user
         validated_data['organizer'] = organizer
         validated_data['code'] = code
-        
+
         return super().create(validated_data)
 
     def to_representation(self, instance):
@@ -136,11 +136,11 @@ class TicketSerializer(serializers.ModelSerializer):
         ).to_representation(instance)
 
 
-class PaymentResponseSerializer(serializers.ModelSerializer):
+class TransactionResponseSerializer(serializers.ModelSerializer):
     reservation = ReservationSerializer()
 
     class Meta:
-        model = Payment
+        model = Transaction
         fields = [
             'id',
             'reservation',
@@ -152,9 +152,9 @@ class PaymentResponseSerializer(serializers.ModelSerializer):
         ]
 
 
-class PaymentSerializer(serializers.ModelSerializer):
+class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Payment
+        model = Transaction
         fields = [
             'reservation',
             'payment_method'
@@ -166,12 +166,12 @@ class PaymentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user
         try:
-            return PaymentService.process_payment(user, validated_data)
+            return TransactionService.process_payment(user, validated_data)
         except Exception as e:
             raise e
 
     def to_representation(self, instance):
-        return PaymentResponseSerializer(
+        return TransactionResponseSerializer(
             instance,
             context=self.context
         ).to_representation(instance)
