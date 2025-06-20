@@ -51,8 +51,8 @@ class TicketAdmin(admin.ModelAdmin):
 @admin.register(TicketType)
 class TicketTypeAdmin(admin.ModelAdmin):
     list_display = ["category__name", "event", "price", "total_tickets"]
-    search_fields = ["category__name"]
-    list_filter = ["event", "category__name"]
+    search_fields = ["event"]
+    list_filter = ["event__name"]
     readonly_fields = ["available_tickets"]
     ordering = ["-created_at"]
     exclude = ["deleted_at"]
@@ -60,7 +60,7 @@ class TicketTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    list_display = ["user", "event", "code",
+    list_display = ["code", "user", "event", "ticket_type__category__name",
                     "reserved_date", "status", "payment_status"]
     search_fields = ["code"]
     list_filter = ["status", "payment_status", "reserved_date", "event"]
