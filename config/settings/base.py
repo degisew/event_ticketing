@@ -47,7 +47,7 @@ SHOW_SWAGGER = env("SHOW_SWAGGER", default=True, cast=bool)
 ENV = env("ENV", default="development")
 
 # A list of all the people who get code error notifications.
-ADMINS=env('ADMINS')
+ADMINS = env('ADMINS')
 
 CORS_ALLOW_ALL_ORIGINS = env(
     "CORS_ALLOW_ALL_ORIGINS", cast=bool, default=True
@@ -230,9 +230,52 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/ticketing.log',
+            'formatter': 'verbose',
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/errors.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'your_app_name': {  # Replace with your actual app name
+            'handlers': ['file', 'error_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
 # CELERY configuration
-CELERY_BROKER_URL = env("CELERY_BROKER", default="redis://127.0.0.1:6379/0", cast=str,)
-CELERY_RESULT_BACKEND = env("CELERY_BACKEND", cast=str, default="redis://127.0.0.1:6379/0")
+CELERY_BROKER_URL = env(
+    "CELERY_BROKER", default="redis://127.0.0.1:6379/0", cast=str,)
+CELERY_RESULT_BACKEND = env(
+    "CELERY_BACKEND", cast=str, default="redis://127.0.0.1:6379/0")
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
