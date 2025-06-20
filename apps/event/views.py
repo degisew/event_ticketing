@@ -4,13 +4,26 @@ from apps.event.permissions import (
     TransactionAccessPolicy,
     ReservationAccessPolicy,
     TicketAccessPolicy,
+    TicketTypeAccessPolicy
 
 )
-from apps.event.filters import EventFilter, TicketFilter, ReservationFilter
-from apps.event.models import Event, Transaction, Reservation, Ticket
+from apps.event.filters import (
+    EventFilter,
+    TicketFilter,
+    TicketTypeFilter,
+    ReservationFilter
+)
+from apps.event.models import (
+    Event,
+    TicketType,
+    Transaction,
+    Reservation,
+    Ticket
+)
 from apps.core.views import AbstractModelViewSet
 from apps.event.serializers import (
     EventSerializer,
+    TicketTypeSerializer,
     TransactionSerializer,
     ReservationSerializer,
     TicketResponseSerializer
@@ -32,6 +45,14 @@ class TicketViewSet(AbstractModelViewSet):
     queryset = Ticket.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_classes = [TicketFilter]
+
+
+class TicketTypeViewSet(AbstractModelViewSet):
+    permission_classes = [TicketTypeAccessPolicy]
+    serializer_class = TicketTypeSerializer
+    queryset = TicketType.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_classes = [TicketTypeFilter]
 
 
 class ReservationViewSet(AbstractModelViewSet):

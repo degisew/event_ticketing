@@ -99,8 +99,8 @@ class TicketType(AbstractBaseModel):
     )
 
     class Meta:
-        verbose_name = _("Ticket Category Price")
-        verbose_name_plural = _("Ticket Category Prices")
+        verbose_name = _("Ticket Type")
+        verbose_name_plural = _("Ticket Types")
         db_table = "ticket_types"
 
     def save(self, *args, **kwargs):
