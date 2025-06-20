@@ -4,6 +4,7 @@ from apps.event.models import (
     Event,
     Ticket,
     Reservation,
+    TicketType,
     Transaction
 )
 
@@ -44,6 +45,16 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ["status", "reservation"]
     ordering = ["-created_at"]
     readonly_fields = ["ticket_number", "status", "reservation", "created_at", "updated_at"]
+    exclude = ["deleted_at"]
+
+
+@admin.register(TicketType)
+class TicketTypeAdmin(admin.ModelAdmin):
+    list_display = ["category__name", "event", "price", "total_tickets"]
+    search_fields = ["category__name"]
+    list_filter = ["event", "category__name"]
+    readonly_fields = ["available_tickets"]
+    ordering = ["-created_at"]
     exclude = ["deleted_at"]
 
 

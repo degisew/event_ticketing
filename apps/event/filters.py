@@ -1,5 +1,4 @@
 from django_filters import FilterSet
-# from django_filters import rest_framework as filters
 from apps.event.models import Event, Reservation, Ticket
 
 
