@@ -72,8 +72,9 @@ class ReservationService:
         ReservationService._update_ticket_availability(
             ticket_type, ticket_quantity)
 
-        ReservationService._create_tickets(
-            reservation, ticket_type, ticket_quantity)
+        logger.info(
+            f"{user.email} successfully reserved {ticket_quantity} tickets for event {event.id}"
+        )
 
         return reservation
 
@@ -118,6 +119,8 @@ class ReservationService:
                 }
             )
 
+    # TODO: Use this method for both updations using a flag (
+    # TODO: decrementing for paid and increment for revocked reservations)
     @staticmethod
     def _update_ticket_availability(ticket_type, quantity):
         try:
@@ -139,27 +142,6 @@ class ReservationService:
                 f"Ticket type {ticket_type.id} not found during update")
             raise DataIntegrityError("Ticket type no longer exists")
 
-    @staticmethod
-    def _create_single_ticket(ticket_type, reservation) -> Ticket:
-        return Ticket.objects.create(
-            reservation=reservation,
-            ticket_number=generate_unique_code("TKT", reservation.id),
-            status=DataLookup.objects.get(
-                type=TICKET_STATUS_TYPE,
-                value=TicketStatuses.ACTIVE.value
-            ),
-            unit_price=ticket_type.price,
-        )
-
-    @staticmethod
-    def _create_tickets(reservation, ticket_type, quantity):
-        tickets = []
-        for _ in range(quantity):
-            ticket = ReservationService._create_single_ticket(
-                ticket_type, reservation)
-            tickets.append(ticket)
-        return tickets
-
 
 class TransactionService:
     @staticmethod
@@ -177,6 +159,36 @@ class TransactionService:
             raise e
         except DatabaseError as e:
             raise e
+
+    @staticmethod
+    def _create_single_ticket(ticket_type, reservation) -> Ticket:
+        return Ticket.objects.create(
+            reservation=reservation,
+            ticket_number=generate_unique_code("TKT", reservation.id),
+            status=DataLookup.objects.get(
+                type=TICKET_STATUS_TYPE,
+                value=TicketStatuses.SOLD.value
+            ),
+            unit_price=ticket_type.price,
+        )
+
+    @staticmethod
+    def _create_tickets(reservation):
+        if not reservation.user:
+            raise KeyError("Reservation has no associated user.")
+
+        if not reservation.ticket_quantity:
+            raise KeyError("Reservation has no key ticket_quantity.")
+
+        ticket_type = reservation.ticket_type
+        quantity = reservation.ticket_quantity
+
+        tickets = []
+        for _ in range(quantity):
+            ticket = TransactionService._create_single_ticket(
+                ticket_type, reservation)
+            tickets.append(ticket.ticket_number)
+        return tickets
 
     @staticmethod
     def _get_reservation_statuses():
@@ -212,39 +224,14 @@ class TransactionService:
         reservation.save()
 
     @staticmethod
-    def _update_ticket_statuses(reservation):
-        try:
-            tickets = list(
-                Ticket.objects.filter(
-                    id__in=reservation.tickets.values_list(
-                        "id", flat=True
-                    )
-                )
-            )
-
-            if not tickets:
-                return
-
-            sold_status = DataLookup.objects.get(
-                type=TICKET_STATUS_TYPE, value=TicketStatuses.SOLD.value
-            )
-
-            for ticket in tickets:
-                ticket.status = sold_status
-
-            Ticket.objects.bulk_update(tickets, ["status"])
-
-            # just return tickets to reuse somewhere
-            return tickets
-        except DataLookup.DoesNotExist:
-            raise ValueError("Invalid ticket status lookup.")
-        except DatabaseError as e:
-            raise e
-
-    @staticmethod
     @transaction.atomic
-    def transaction_handler(user, validated_data):
+    def transaction_handler(validated_data):
         reservation = validated_data["reservation"]
+
+        tickets = TransactionService._create_tickets(reservation)
+
+        TransactionService._update_reservation_status(reservation)
+
         total_amount = TransactionService._calculate_total_amount(
             reservation
         )
@@ -253,21 +240,10 @@ class TransactionService:
             reservation, total_amount
         )
 
-        TransactionService._update_reservation_status(reservation)
-
-        TransactionService._update_ticket_statuses(reservation)
-
-        tickets = list(Ticket.objects.filter(
-            reservation=reservation
-        ).values("ticket_number"))
-
-        for t in tickets:
-            print("THIS", t.get('ticket_number', ''))
-
         if tickets:
-            recipient_email = [user.email]
+            recipient_email = [reservation.user.email]
 
             # Trigger the Celery task in the background
-            send_ticket_email.delay(tickets, recipient_email)
+            send_ticket_email.delay(tickets, recipient_email, reservation.event.name)
 
         return payment

@@ -40,7 +40,7 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ["ticket_number", "reservation", "status"]
+    list_display = ["ticket_number", "reservation", "status", "created_at"]
     search_fields = ["ticket_number"]
     list_filter = ["status", "reservation"]
     ordering = ["-created_at"]
@@ -66,8 +66,8 @@ class ReservationAdmin(admin.ModelAdmin):
     list_filter = ["status", "payment_status", "reserved_date", "event"]
     date_hierarchy = "reserved_date"
     ordering = ["-created_at"]
-    readonly_fields = ["code", "user", "event", "status",
-                       "payment_status", "reserved_date", "created_at", "updated_at"]
+    readonly_fields = ["code", "user", "event", "status", "payment_status",
+                       "reserved_date", "created_at", "updated_at"]
     exclude = ["deleted_at"]
 
 

@@ -2,6 +2,7 @@ import logging
 from rest_framework import serializers
 from apps.account.serializers import UserSerializer
 from apps.core.serializers import DataLookupSerializer
+from apps.event.exceptions import SerializationError
 from apps.event.models import (
     Event,
     Ticket,
@@ -144,12 +145,10 @@ class ReservationSerializer(serializers.ModelSerializer):
                 context=self.context
             ).to_representation(instance)
         except Exception as e:
-            logger.error(f"Error in to_representation: {str(e)}", exc_info=True)
-
-            return {
-                'id': instance.id,
-                'error': 'Unable to fully serialize reservation details'
-            }
+            logger.error(
+                f"Error in to_representation: {str(e)}", exc_info=True)
+            raise SerializationError(
+                "Unable to fully serialize reservation details.")
 
 
 class TicketResponseSerializer(serializers.ModelSerializer):
@@ -166,18 +165,19 @@ class TicketResponseSerializer(serializers.ModelSerializer):
         ]
 
 
-# class TicketSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Ticket
-#         fields = [
-#             'reservation'
-#         ]
+class TicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = [
+            'reservation'
+        ]
 
-#     def to_representation(self, instance):
-#         return TicketResponseSerializer(
-#             instance,
-#             context=self.context
-#         ).to_representation(instance)
+    def to_representation(self, instance):
+        return TicketResponseSerializer(
+            instance,
+            context=self.context
+        ).to_representation(instance)
+
 
 class TicketTypeResponseSerializer(serializers.ModelSerializer):
     category = DataLookupSerializer()
@@ -239,8 +239,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        return TransactionService.transaction_handler(user, validated_data)
+        return TransactionService.transaction_handler(validated_data)
 
     def to_representation(self, instance):
         return TransactionResponseSerializer(
