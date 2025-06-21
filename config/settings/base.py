@@ -262,11 +262,15 @@ LOGGING = {
             'formatter': 'simple',
         },
     },
+    'root': {
+        'handlers': ['file', 'error_file', 'console'],
+        'level': 'INFO',
+    },
     'loggers': {
-        'your_app_name': {  # Replace with your actual app name
-            'handlers': ['file', 'error_file', 'console'],
+        'django': {
+            'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
     },
 }
