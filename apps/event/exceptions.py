@@ -7,6 +7,12 @@ class TicketingBaseException(APIException):
     default_code = "TICKETING_ERROR"
 
 
+class SerializationError(APIException):
+    status_code = 500
+    default_detail = "Object Serialization Error"
+    default_code = "SERIALIZATION_ERROR"
+
+
 class BusinessLogicError(TicketingBaseException):
     status_code = 400
     default_detail = "Business logic error"
