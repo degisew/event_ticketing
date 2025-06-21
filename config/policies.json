@@ -184,7 +184,7 @@
                     "update"
                 ],
                 "principal": [
-                    "role:user"
+                    "*"
                 ],
                 "effect": "allow"
             }
@@ -218,7 +218,7 @@
                     "create"
                 ],
                 "principal": [
-                    "role:*"
+                    "*"
                 ],
                 "effect": "allow"
             }
