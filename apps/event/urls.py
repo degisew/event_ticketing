@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from apps.event.views import (
     EventViewSet,
     ReservationViewSet,
+    TicketTypeViewSet,
     TransactionViewSet,
     TicketViewSet
 )
@@ -10,6 +11,7 @@ router = DefaultRouter()
 
 router.register(r'events', EventViewSet, basename='events')
 router.register(r'tickets', TicketViewSet, basename='tickets')
+router.register(r'ticket_types', TicketTypeViewSet, basename='ticket_types')
 router.register(r'reservations', ReservationViewSet, basename='reservations')
 router.register(r'payments', TransactionViewSet, basename='payments')
 

@@ -1,8 +1,19 @@
+import logging
 from rest_framework import serializers
 from apps.account.serializers import UserSerializer
-from apps.event.models import Event, Ticket, Reservation, Transaction
+from apps.core.serializers import DataLookupSerializer
+from apps.event.exceptions import SerializationError
+from apps.event.models import (
+    Event,
+    Ticket,
+    Reservation,
+    TicketType,
+    Transaction
+)
 from apps.core.utils import generate_unique_code
 from apps.event.services import TransactionService, ReservationService
+
+logger = logging.getLogger(__name__)
 
 
 class EventResponseSerializer(serializers.ModelSerializer):
@@ -15,11 +26,9 @@ class EventResponseSerializer(serializers.ModelSerializer):
             'organizer',
             'description',
             'start_date',
-            'ticket_price',
             'end_date',
             'is_active',
             'capacity',
-            'available_seats',
             'location',
             'created_at',
             'updated_at'
@@ -34,7 +43,6 @@ class EventSerializer(serializers.ModelSerializer):
             'description',
             'start_date',
             'end_date',
-            'ticket_price',
             'is_active',
             'capacity',
             'location'
@@ -76,45 +84,81 @@ class ReservationResponseSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    quantity = serializers.IntegerField()
-
     class Meta:
         model = Reservation
         fields = [
             'event',
-            'reserved_date',
-            'quantity'
+            'ticket_type',
+            'ticket_quantity',
         ]
 
+    def validate_ticket_quantity(self, value):
+        """Validate ticket quantity is positive and within limits"""
+        if value <= 0:
+            raise serializers.ValidationError(
+                "Ticket quantity must be positive")
+
+        # TODO: We assume 10 ticket per reservation. refine it.
+        if value > 10:
+            raise serializers.ValidationError(
+                "Maximum 10 tickets per reservation")
+
+        return value
+
     def validate(self, attrs):
-        return super().validate(attrs)
+        try:
+            event = attrs.get('event')
+
+            if not event:
+                raise serializers.ValidationError("Event is required")
+
+            if not event.is_active:
+                raise serializers.ValidationError("Event is not active")
+
+            # Validate ticket type belongs to the given event
+            ticket_type = attrs.get('ticket_type')
+            if ticket_type and ticket_type.event_id != event.id:
+                raise serializers.ValidationError(
+                    "Ticket type does not belong to this event")
+
+            return attrs
+
+        except Exception as e:
+            logger.error(
+                f"Validation error in ReservationSerializer: {str(e)}")
+
+            raise serializers.ValidationError("Invalid reservation data")
 
     def create(self, validated_data) -> Reservation:
         user = self.context['request'].user
         validated_data['user'] = user
 
-        try:
-            return ReservationService.create_reservation(validated_data)
-        except Exception as e:
-            raise e
+        logger.info(
+            f"Creating reservation for user {user.id}, event {validated_data['event'].id}")
+
+        return ReservationService.create_reservation(validated_data)
 
     def to_representation(self, instance):
-        return ReservationResponseSerializer(
-            instance,
-            context=self.context
-        ).to_representation(instance)
+        try:
+            return ReservationResponseSerializer(
+                instance,
+                context=self.context
+            ).to_representation(instance)
+        except Exception as e:
+            logger.error(
+                f"Error in to_representation: {str(e)}", exc_info=True)
+            raise SerializationError(
+                "Unable to fully serialize reservation details.")
 
 
 class TicketResponseSerializer(serializers.ModelSerializer):
-    event = EventSerializer()
 
     class Meta:
         model = Ticket
         fields = [
             'id',
-            'event',
+            'reservation',
             'ticket_number',
-            'seat_number',
             'status',
             'created_at',
             'updated_at'
@@ -125,12 +169,43 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = [
-            'event',
-            'seat_number'
+            'reservation'
         ]
 
     def to_representation(self, instance):
         return TicketResponseSerializer(
+            instance,
+            context=self.context
+        ).to_representation(instance)
+
+
+class TicketTypeResponseSerializer(serializers.ModelSerializer):
+    category = DataLookupSerializer()
+
+    class Meta:
+        model = TicketType
+        fields = [
+            'id',
+            'category',
+            'event',
+            'price',
+            'total_tickets',
+            'available_tickets'
+        ]
+
+
+class TicketTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TicketType
+        fields = [
+            'category',
+            'event',
+            'price',
+            'total_tickets'
+        ]
+
+    def to_representation(self, instance):
+        return TicketTypeResponseSerializer(
             instance,
             context=self.context
         ).to_representation(instance)
@@ -144,7 +219,7 @@ class TransactionResponseSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'reservation',
-            'payment_date',
+            'transaction_date',
             'amount',
             'payment_method',
             'created_at',
@@ -164,11 +239,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        try:
-            return TransactionService.process_payment(user, validated_data)
-        except Exception as e:
-            raise e
+        return TransactionService.transaction_handler(validated_data)
 
     def to_representation(self, instance):
         return TransactionResponseSerializer(

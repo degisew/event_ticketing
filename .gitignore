@@ -1,3 +1,7 @@
+# custom adds
+logs/
+docs/internal/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -143,9 +147,9 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
+
 # mkdocs documentation
 /site
-docs/internal/*
 
 # mypy
 .mypy_cache/

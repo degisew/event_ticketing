@@ -1,11 +1,12 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from apps.core.validators import (
     validate_email,
     validate_password
 )
-from apps.account.enums import AccountState, RoleCode
+from apps.account.enums import AccountState
 from apps.account.models import Role, UserProfile
 from apps.core.models import DataLookup
 from apps.core.serializers import DataLookupSerializer
@@ -38,10 +39,12 @@ class UserResponseSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
+    role = serializers.UUIDField(required=False)
 
     class Meta:
         model = User
         fields = [
+            "role",
             "email",
             "password",
             "confirm_password"
@@ -52,7 +55,8 @@ class UserSerializer(serializers.ModelSerializer):
         validate_password(attrs.get("password"))
 
         if attrs.get("password") != attrs.get("confirm_password"):
-            raise serializers.ValidationError({"confirm_password": "Passwords did not match."})
+            raise serializers.ValidationError(
+                {"confirm_password": "Passwords did not match."})
         return attrs
 
     def create(self, validated_data):
@@ -65,18 +69,28 @@ class UserSerializer(serializers.ModelSerializer):
                 type=AccountState.TYPE.value,
                 value=AccountState.ACTIVE.value
             )
-            role = Role.objects.get(
-                code=RoleCode.USER.value
-            )
-            # Create the user
-            user = super().create(validated_data)
-            user.state = account_state
-            user.role = role
-            user.password = make_password(password)
-            user.save()
-            return user
         except DataLookup.DoesNotExist:
-            raise serializers.ValidationError("Active state not found in DataLookup.")
+            raise serializers.ValidationError(
+                "Active state not found in DataLookup.")
+
+        role_id = validated_data.pop("role", None)
+
+        # TODO: raise custom exception and log
+        role = get_object_or_404(
+            Role,
+            pk=role_id
+        ) if role_id else None
+
+        # Create the user
+        user = User(
+            email=validated_data["email"],
+            role=role,
+            state=account_state,
+            password=make_password(password),
+        )
+        user.save()
+
+        return user
 
     def to_representation(self, instance):
         return UserResponseSerializer(

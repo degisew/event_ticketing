@@ -13,6 +13,12 @@ class TicketAccessPolicy(AbstractAccessPolicy):
         return queryset
 
 
+class TicketTypeAccessPolicy(AbstractAccessPolicy):
+    @classmethod
+    def scope_queryset(cls, request, queryset):
+        return queryset
+
+
 class ReservationAccessPolicy(AbstractAccessPolicy):
     @classmethod
     def scope_queryset(cls, request, queryset):
