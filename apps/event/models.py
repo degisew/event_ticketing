@@ -7,15 +7,13 @@ from apps.core.models import AbstractBaseModel, DataLookup
 class Event(AbstractBaseModel):
     name = models.CharField(verbose_name=_("Event Name"), max_length=255)
 
-    code = models.CharField(verbose_name=_(
-        "Event Code"), max_length=50, unique=True
-    )
+    code = models.CharField(verbose_name=_("Event Code"), max_length=50, unique=True)
 
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.RESTRICT,
         related_name="events",
-        verbose_name=_("Event Organizer")
+        verbose_name=_("Event Organizer"),
     )
 
     description = models.TextField(verbose_name=_("Event Description"))
@@ -32,8 +30,7 @@ class Event(AbstractBaseModel):
 
     is_active = models.BooleanField(verbose_name=_("Is Active"), default=True)
 
-    capacity = models.PositiveIntegerField(
-        verbose_name=_("Capacity"), default=0)
+    capacity = models.PositiveIntegerField(verbose_name=_("Capacity"), default=0)
 
     class Meta:
         verbose_name = _("Event")
@@ -73,30 +70,24 @@ class TicketType(AbstractBaseModel):
         DataLookup,
         on_delete=models.CASCADE,
         limit_choices_to={"type": "ticket_type"},
-        related_name='+',
-        verbose_name=_("Ticket Category")
+        related_name="+",
+        verbose_name=_("Ticket Category"),
     )
 
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
         verbose_name=_("Event"),
-        related_name="ticket_types"
+        related_name="ticket_types",
     )
 
     price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name=_("Price")
+        max_digits=10, decimal_places=2, verbose_name=_("Price")
     )
 
-    total_tickets = models.PositiveIntegerField(
-        verbose_name=_("Total Tickets")
-    )
+    total_tickets = models.PositiveIntegerField(verbose_name=_("Total Tickets"))
 
-    available_tickets = models.PositiveIntegerField(
-        verbose_name=_("Available Tickets")
-    )
+    available_tickets = models.PositiveIntegerField(verbose_name=_("Available Tickets"))
 
     class Meta:
         verbose_name = _("Ticket Type")
@@ -121,9 +112,7 @@ class TicketType(AbstractBaseModel):
 
 class Reservation(AbstractBaseModel):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name="reservations",
-        on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, related_name="reservations", on_delete=models.CASCADE
     )
 
     event = models.ForeignKey(
@@ -134,18 +123,12 @@ class Reservation(AbstractBaseModel):
         TicketType,
         on_delete=models.CASCADE,
         related_name="reservation",
-        verbose_name=_("Ticket Type")
+        verbose_name=_("Ticket Type"),
     )
 
-    ticket_quantity = models.PositiveIntegerField(
-        verbose_name=_("Ticket Quantity")
-    )
+    ticket_quantity = models.PositiveIntegerField(verbose_name=_("Ticket Quantity"))
 
-    code = models.CharField(
-        unique=True,
-        max_length=100,
-        verbose_name=_("Code")
-    )
+    code = models.CharField(unique=True, max_length=100, verbose_name=_("Code"))
 
     reserved_date = models.DateTimeField(
         verbose_name=_("Reserved Date"), auto_now_add=True
@@ -156,7 +139,7 @@ class Reservation(AbstractBaseModel):
         on_delete=models.RESTRICT,
         limit_choices_to={"type": "reservation_status"},
         related_name="+",
-        verbose_name=_("Status")
+        verbose_name=_("Status"),
     )
 
     payment_status = models.ForeignKey(
@@ -186,9 +169,7 @@ class Ticket(AbstractBaseModel):
     )
 
     ticket_number = models.CharField(
-        verbose_name=_("Ticket Number"),
-        max_length=255,
-        unique=True
+        verbose_name=_("Ticket Number"), max_length=255, unique=True
     )
 
     status = models.ForeignKey(
@@ -196,13 +177,11 @@ class Ticket(AbstractBaseModel):
         on_delete=models.RESTRICT,
         limit_choices_to={"type": "ticket_status"},
         related_name="+",
-        verbose_name=_("Status")
+        verbose_name=_("Status"),
     )
 
     unit_price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name=_("Unit Price")
+        max_digits=10, decimal_places=2, verbose_name=_("Unit Price")
     )
 
     class Meta:
@@ -219,13 +198,11 @@ class Transaction(AbstractBaseModel):
         Reservation,
         on_delete=models.CASCADE,
         related_name="transaction",
-        verbose_name=_("Reservation")
+        verbose_name=_("Reservation"),
     )
 
     amount = models.DecimalField(
-        verbose_name=_("Amount"),
-        max_digits=10,
-        decimal_places=2
+        verbose_name=_("Amount"), max_digits=10, decimal_places=2
     )
 
     transaction_date = models.DateTimeField(
@@ -235,10 +212,7 @@ class Transaction(AbstractBaseModel):
     )
 
     # * Will be auto tracked from user activity
-    payment_method = models.CharField(
-        verbose_name=_("Payment Method"),
-        max_length=50
-    )
+    payment_method = models.CharField(verbose_name=_("Payment Method"), max_length=50)
 
     class Meta:
         verbose_name = _("transaction")

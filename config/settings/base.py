@@ -23,93 +23,88 @@ env = environ.Env()
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Take environment variables from .env file
-env.read_env(os.path.join(BASE_DIR, '.env'))
+env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default=["*"])
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
 
 AUTH_USER_MODEL = "account.User"
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 SHOW_SWAGGER = env("SHOW_SWAGGER", default=True, cast=bool)
 
 ENV = env("ENV", default="development")
 
 # A list of all the people who get code error notifications.
-ADMINS = env('ADMINS')
+ADMINS = env("ADMINS")
 
-CORS_ALLOW_ALL_ORIGINS = env(
-    "CORS_ALLOW_ALL_ORIGINS", cast=bool, default=True
-)
+CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", cast=bool, default=True)
 
-CSRF_TRUSTED_ORIGINS = env(
-    "CSRF_TRUSTED_ORIGINS", default=["*"]
-)
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", default=["*"])
 
 # Application definition
 DJANGO_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ]
 
 THIRD_PARTY_APPS = [
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    'django_filters',
-    'rest_access_policy',
-    'drf_standardized_errors',
-
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "corsheaders",
+    "django_filters",
+    "rest_access_policy",
+    "drf_standardized_errors",
 ]
 
 CUSTOM_APPS = [
-    'apps.core.apps.CoreConfig',
-    'apps.account.apps.AccountsConfig',
-    "apps.event.apps.EventConfig"
+    "apps.core.apps.CoreConfig",
+    "apps.account.apps.AccountsConfig",
+    "apps.event.apps.EventConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 
 # middlewares
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
@@ -141,23 +136,23 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = env("TIME_ZONE", cast=str)
 
@@ -187,16 +182,13 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_FILTER_BACKENDS": [
-        "django_filters.rest_framework.DjangoFilterBackend"
-    ],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     # default exception formatter
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -213,12 +205,8 @@ DRF_STANDARDIZED_ERRORS = {"ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True}
 
 SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ["rest_framework_simplejwt.tokens.AccessToken"],
-    "ACCESS_TOKEN_LIFETIME": (
-        timedelta(hours=1) if not DEBUG else timedelta(days=30)
-    ),
-    "REFRESH_TOKEN_LIFETIME": (
-        timedelta(days=1) if not DEBUG else timedelta(days=30)
-    ),
+    "ACCESS_TOKEN_LIFETIME": (timedelta(hours=1) if not DEBUG else timedelta(days=30)),
+    "REFRESH_TOKEN_LIFETIME": (timedelta(days=1) if not DEBUG else timedelta(days=30)),
     "USER_ID_FIELD": "id",
     "TOKEN_REFRESH_SERIALIZER": "authn.serializers.TokenRefreshSerializer",
     "ROTATE_REFRESH_TOKENS": True,
@@ -227,68 +215,72 @@ SIMPLE_JWT = {
 SPECTACULAR_SETTINGS = {
     "TITLE": _(env("APP_TITLE", cast=str)),
     "DESCRIPTION": _(env("APP_DESCRIPTION", cast=str)),
-    'VERSION': '1.0.0',
+    "VERSION": "1.0.0",
 }
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
         },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'logs/ticketing.log',
-            'formatter': 'verbose',
-        },
-        'error_file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': 'logs/errors.log',
-            'formatter': 'verbose',
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
         },
     },
-    'root': {
-        'handlers': ['file', 'error_file', 'console'],
-        'level': 'INFO',
-    }
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "logs/ticketing.log",
+            "formatter": "verbose",
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": "logs/errors.log",
+            "formatter": "verbose",
+        },
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "root": {
+        "handlers": ["file", "error_file", "console"],
+        "level": "INFO",
+    },
 }
 
 # CELERY configuration
 CELERY_BROKER_URL = env(
-    "CELERY_BROKER", default="redis://127.0.0.1:6379/0", cast=str,)
+    "CELERY_BROKER",
+    default="redis://127.0.0.1:6379/0",
+    cast=str,
+)
 
 CELERY_RESULT_BACKEND = env(
-    "CELERY_BACKEND", cast=str, default="redis://127.0.0.1:6379/0")
+    "CELERY_BACKEND", cast=str, default="redis://127.0.0.1:6379/0"
+)
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'jegisew21@gmail.com'
+EMAIL_HOST_USER = "jegisew21@gmail.com"
 EMAIL_HOST_PASSWORD = env("APP_PASSWORD", cast=str)
 
 # OPTIONAL
-DEFAULT_FROM_EMAIL = 'Degisew Mengist <jegisew21@gmail.com>'
+DEFAULT_FROM_EMAIL = "Degisew Mengist <jegisew21@gmail.com>"
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

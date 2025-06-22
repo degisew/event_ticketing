@@ -84,8 +84,7 @@ class UserPreferences(AbstractBaseModel):
 
 
 class UserProfile(AbstractBaseModel):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     first_name = models.CharField(verbose_name=_("First Name"), max_length=100)
 
@@ -102,8 +101,7 @@ class UserProfile(AbstractBaseModel):
         null=True,
     )
 
-    address = models.TextField(verbose_name=_(
-        "Address"), blank=True, null=True)
+    address = models.TextField(verbose_name=_("Address"), blank=True, null=True)
 
     class Meta:
         verbose_name = _("user profile")

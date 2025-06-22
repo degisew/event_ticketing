@@ -58,9 +58,7 @@ class SystemSettingSerializer(serializers.ModelSerializer):
         ]
 
     def to_representation(self, instance):
-        return SystemSettingResponseSerializer(instance).to_representation(
-            instance
-        )
+        return SystemSettingResponseSerializer(instance).to_representation(instance)
 
 
 class ResetSystemSettingSerializer(serializers.ModelSerializer):
@@ -76,7 +74,4 @@ class ResetSystemSettingSerializer(serializers.ModelSerializer):
         return attrs
 
     def to_representation(self, instance):
-        return SystemSettingResponseSerializer(instance).to_representation(
-            instance
-        )
-
+        return SystemSettingResponseSerializer(instance).to_representation(instance)

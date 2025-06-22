@@ -2,10 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-from apps.core.validators import (
-    validate_email,
-    validate_password
-)
+from apps.core.validators import validate_email, validate_password
 from apps.account.enums import AccountState
 from apps.account.models import Role, UserProfile
 from apps.core.models import DataLookup
@@ -43,12 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
-            "role",
-            "email",
-            "password",
-            "confirm_password"
-        ]
+        fields = ["role", "email", "password", "confirm_password"]
 
     def validate(self, attrs):
         validate_email(attrs.get("email"))
@@ -56,7 +48,8 @@ class UserSerializer(serializers.ModelSerializer):
 
         if attrs.get("password") != attrs.get("confirm_password"):
             raise serializers.ValidationError(
-                {"confirm_password": "Passwords did not match."})
+                {"confirm_password": "Passwords did not match."}
+            )
         return attrs
 
     def create(self, validated_data):
@@ -66,20 +59,15 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             # Fetch the account state
             account_state = DataLookup.objects.get(
-                type=AccountState.TYPE.value,
-                value=AccountState.ACTIVE.value
+                type=AccountState.TYPE.value, value=AccountState.ACTIVE.value
             )
         except DataLookup.DoesNotExist:
-            raise serializers.ValidationError(
-                "Active state not found in DataLookup.")
+            raise serializers.ValidationError("Active state not found in DataLookup.")
 
         role_id = validated_data.pop("role", None)
 
         # TODO: raise custom exception and log
-        role = get_object_or_404(
-            Role,
-            pk=role_id
-        ) if role_id else None
+        role = get_object_or_404(Role, pk=role_id) if role_id else None
 
         # Create the user
         user = User(
@@ -93,9 +81,9 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def to_representation(self, instance):
-        return UserResponseSerializer(
-            instance, self.context
-        ).to_representation(instance)
+        return UserResponseSerializer(instance, self.context).to_representation(
+            instance
+        )
 
 
 class PasswordChangeSerializer(serializers.Serializer):
@@ -138,7 +126,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "avatar",
             "address",
             "created_at",
-            "updated_at"
+            "updated_at",
         ]
 
     def create(self, validated_data):
@@ -148,9 +136,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def to_representation(self, instance):
-        return UserProfileResponseSerializer(
-            instance, self.context
-        ).to_representation(instance)
+        return UserProfileResponseSerializer(instance, self.context).to_representation(
+            instance
+        )
 
 
 class UserProfileResponseSerializer(serializers.ModelSerializer):
@@ -167,5 +155,5 @@ class UserProfileResponseSerializer(serializers.ModelSerializer):
             "address",
             "user",
             "created_at",
-            "updated_at"
+            "updated_at",
         ]

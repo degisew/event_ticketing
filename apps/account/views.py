@@ -4,16 +4,12 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from apps.account.models import Role, UserProfile
-from apps.account.permissions import (
-    UserAccessPolicy,
-    USerProfileAccessPolicy,
-    RoleAccessPolicy
-)
+from apps.account.permissions import UserAccessPolicy
 from apps.account.serializers import (
     PasswordChangeSerializer,
     RoleSerializer,
     UserSerializer,
-    UserProfileSerializer
+    UserProfileSerializer,
 )
 
 from apps.core.views import AbstractModelViewSet
@@ -40,16 +36,21 @@ class PasswordChangeViewSet(viewsets.ViewSet):
     serializer_class = PasswordChangeSerializer
 
     def create(self, request):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         # Generate a new JWT token
         refresh = RefreshToken.for_user(request.user)
-        return Response({
-            "message": "Password changed successfully",
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "message": "Password changed successfully",
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class USerProfileViewSet(AbstractModelViewSet):

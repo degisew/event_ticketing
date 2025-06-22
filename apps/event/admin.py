@@ -1,23 +1,25 @@
 from django.contrib import admin
 
-from apps.event.models import (
-    Event,
-    Ticket,
-    Reservation,
-    TicketType,
-    Transaction
-)
+from apps.event.models import Event, Ticket, Reservation, TicketType, Transaction
 
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ["name", "code", "start_date", "end_date",
-                    "is_active", "location", "capacity", "organizer"]
+    list_display = [
+        "name",
+        "code",
+        "start_date",
+        "end_date",
+        "is_active",
+        "location",
+        "capacity",
+        "organizer",
+    ]
     search_fields = ["name", "description"]
     list_filter = ["is_active", "start_date", "end_date"]
     date_hierarchy = "start_date"
     ordering = ["-start_date"]
-    readonly_fields = ["code",  "created_at", "updated_at"]
+    readonly_fields = ["code", "created_at", "updated_at"]
     exclude = ["deleted_at"]
     fieldsets = (
         (
@@ -31,7 +33,7 @@ class EventAdmin(admin.ModelAdmin):
                     "end_date",
                     "is_active",
                     "capacity",
-                    "location"
+                    "location",
                 )
             },
         ),
@@ -44,7 +46,13 @@ class TicketAdmin(admin.ModelAdmin):
     search_fields = ["ticket_number"]
     list_filter = ["status", "reservation"]
     ordering = ["-created_at"]
-    readonly_fields = ["ticket_number", "status", "reservation", "created_at", "updated_at"]
+    readonly_fields = [
+        "ticket_number",
+        "status",
+        "reservation",
+        "created_at",
+        "updated_at",
+    ]
     exclude = ["deleted_at"]
 
 
@@ -60,14 +68,29 @@ class TicketTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    list_display = ["code", "user", "event", "ticket_type__category__name",
-                    "reserved_date", "status", "payment_status"]
+    list_display = [
+        "code",
+        "user",
+        "event",
+        "ticket_type__category__name",
+        "reserved_date",
+        "status",
+        "payment_status",
+    ]
     search_fields = ["code"]
     list_filter = ["status", "payment_status", "reserved_date", "event"]
     date_hierarchy = "reserved_date"
     ordering = ["-created_at"]
-    readonly_fields = ["code", "user", "event", "status", "payment_status",
-                       "reserved_date", "created_at", "updated_at"]
+    readonly_fields = [
+        "code",
+        "user",
+        "event",
+        "status",
+        "payment_status",
+        "reserved_date",
+        "created_at",
+        "updated_at",
+    ]
     exclude = ["deleted_at"]
 
 
@@ -77,6 +100,12 @@ class TransactionAdmin(admin.ModelAdmin):
     search_fields = ["reservation"]
     list_filter = ["reservation", "payment_method"]
     ordering = ["-created_at"]
-    readonly_fields = ["reservation", "amount", "payment_method",
-                       "transaction_date", "created_at", "updated_at"]
+    readonly_fields = [
+        "reservation",
+        "amount",
+        "payment_method",
+        "transaction_date",
+        "created_at",
+        "updated_at",
+    ]
     exclude = ["deleted_at"]

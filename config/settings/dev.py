@@ -1,10 +1,12 @@
 import socket
-from config.settings.base import *  # noqa
+from config.settings.base import *  # noqa F403
+from config.settings.base import INSTALLED_APPS, MIDDLEWARE
 
+INSTALLED_APPS += ["drf_spectacular", "debug_toolbar"]
 
-INSTALLED_APPS += ['drf_spectacular', 'debug_toolbar']
-
-MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware",]
+MIDDLEWARE += [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+]
 
 
 # Since we're in Docker, we do this to match the machine address of Docker

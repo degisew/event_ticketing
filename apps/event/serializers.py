@@ -3,13 +3,7 @@ from rest_framework import serializers
 from apps.account.serializers import UserSerializer
 from apps.core.serializers import DataLookupSerializer
 from apps.event.exceptions import SerializationError
-from apps.event.models import (
-    Event,
-    Ticket,
-    Reservation,
-    TicketType,
-    Transaction
-)
+from apps.event.models import Event, Ticket, Reservation, TicketType, Transaction
 from apps.core.utils import generate_unique_code
 from apps.event.services import TransactionService, ReservationService
 
@@ -20,18 +14,18 @@ class EventResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = [
-            'id',
-            'name',
-            'code',
-            'organizer',
-            'description',
-            'start_date',
-            'end_date',
-            'is_active',
-            'capacity',
-            'location',
-            'created_at',
-            'updated_at'
+            "id",
+            "name",
+            "code",
+            "organizer",
+            "description",
+            "start_date",
+            "end_date",
+            "is_active",
+            "capacity",
+            "location",
+            "created_at",
+            "updated_at",
         ]
 
 
@@ -39,13 +33,13 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = [
-            'name',
-            'description',
-            'start_date',
-            'end_date',
-            'is_active',
-            'capacity',
-            'location'
+            "name",
+            "description",
+            "start_date",
+            "end_date",
+            "is_active",
+            "capacity",
+            "location",
         ]
 
     def validate(self, attrs):
@@ -53,16 +47,15 @@ class EventSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         code = generate_unique_code("EVT", "")
-        organizer = self.context['request'].user
-        validated_data['organizer'] = organizer
-        validated_data['code'] = code
+        organizer = self.context["request"].user
+        validated_data["organizer"] = organizer
+        validated_data["code"] = code
 
         return super().create(validated_data)
 
     def to_representation(self, instance):
         return EventResponseSerializer(
-            instance,
-            context=self.context
+            instance, context=self.context
         ).to_representation(instance)
 
 
@@ -73,13 +66,13 @@ class ReservationResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reservation
         fields = [
-            'id',
-            'user',
-            'event',
-            'reserved_date',
-            'payment_status',
-            'created_at',
-            'updated_at'
+            "id",
+            "user",
+            "event",
+            "reserved_date",
+            "payment_status",
+            "created_at",
+            "updated_at",
         ]
 
 
@@ -87,27 +80,25 @@ class ReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reservation
         fields = [
-            'event',
-            'ticket_type',
-            'ticket_quantity',
+            "event",
+            "ticket_type",
+            "ticket_quantity",
         ]
 
     def validate_ticket_quantity(self, value):
         """Validate ticket quantity is positive and within limits"""
         if value <= 0:
-            raise serializers.ValidationError(
-                "Ticket quantity must be positive")
+            raise serializers.ValidationError("Ticket quantity must be positive")
 
         # TODO: We assume 10 ticket per reservation. refine it.
         if value > 10:
-            raise serializers.ValidationError(
-                "Maximum 10 tickets per reservation")
+            raise serializers.ValidationError("Maximum 10 tickets per reservation")
 
         return value
 
     def validate(self, attrs):
         try:
-            event = attrs.get('event')
+            event = attrs.get("event")
 
             if not event:
                 raise serializers.ValidationError("Event is required")
@@ -116,66 +107,60 @@ class ReservationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Event is not active")
 
             # Validate ticket type belongs to the given event
-            ticket_type = attrs.get('ticket_type')
+            ticket_type = attrs.get("ticket_type")
             if ticket_type and ticket_type.event_id != event.id:
                 raise serializers.ValidationError(
-                    "Ticket type does not belong to this event")
+                    "Ticket type does not belong to this event"
+                )
 
             return attrs
 
         except Exception as e:
-            logger.error(
-                f"Validation error in ReservationSerializer: {str(e)}")
+            logger.error(f"Validation error in ReservationSerializer: {str(e)}")
 
             raise serializers.ValidationError("Invalid reservation data")
 
     def create(self, validated_data) -> Reservation:
-        user = self.context['request'].user
-        validated_data['user'] = user
+        user = self.context["request"].user
+        validated_data["user"] = user
 
         logger.info(
-            f"Creating reservation for user {user.id}, event {validated_data['event'].id}")
+            f"Creating reservation for user {user.id}, event {validated_data['event'].id}"
+        )
 
         return ReservationService.create_reservation(validated_data)
 
     def to_representation(self, instance):
         try:
             return ReservationResponseSerializer(
-                instance,
-                context=self.context
+                instance, context=self.context
             ).to_representation(instance)
         except Exception as e:
-            logger.error(
-                f"Error in to_representation: {str(e)}", exc_info=True)
-            raise SerializationError(
-                "Unable to fully serialize reservation details.")
+            logger.error(f"Error in to_representation: {str(e)}", exc_info=True)
+            raise SerializationError("Unable to fully serialize reservation details.")
 
 
 class TicketResponseSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Ticket
         fields = [
-            'id',
-            'reservation',
-            'ticket_number',
-            'status',
-            'created_at',
-            'updated_at'
+            "id",
+            "reservation",
+            "ticket_number",
+            "status",
+            "created_at",
+            "updated_at",
         ]
 
 
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
-        fields = [
-            'reservation'
-        ]
+        fields = ["reservation"]
 
     def to_representation(self, instance):
         return TicketResponseSerializer(
-            instance,
-            context=self.context
+            instance, context=self.context
         ).to_representation(instance)
 
 
@@ -185,29 +170,23 @@ class TicketTypeResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketType
         fields = [
-            'id',
-            'category',
-            'event',
-            'price',
-            'total_tickets',
-            'available_tickets'
+            "id",
+            "category",
+            "event",
+            "price",
+            "total_tickets",
+            "available_tickets",
         ]
 
 
 class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketType
-        fields = [
-            'category',
-            'event',
-            'price',
-            'total_tickets'
-        ]
+        fields = ["category", "event", "price", "total_tickets"]
 
     def to_representation(self, instance):
         return TicketTypeResponseSerializer(
-            instance,
-            context=self.context
+            instance, context=self.context
         ).to_representation(instance)
 
 
@@ -217,23 +196,20 @@ class TransactionResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = [
-            'id',
-            'reservation',
-            'transaction_date',
-            'amount',
-            'payment_method',
-            'created_at',
-            'updated_at'
+            "id",
+            "reservation",
+            "transaction_date",
+            "amount",
+            "payment_method",
+            "created_at",
+            "updated_at",
         ]
 
 
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = [
-            'reservation',
-            'payment_method'
-        ]
+        fields = ["reservation", "payment_method"]
 
     def validate(self, attrs):
         return super().validate(attrs)
@@ -243,6 +219,5 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return TransactionResponseSerializer(
-            instance,
-            context=self.context
+            instance, context=self.context
         ).to_representation(instance)

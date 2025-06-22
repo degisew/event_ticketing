@@ -27,7 +27,7 @@ class SuperUserFactory(factory.django.DjangoModelFactory):
         model = User
         skip_postgeneration_save = True  # Prevents unnecessary save()
 
-    email = 'admin@gmail.com'
+    email = "admin@gmail.com"
     password = factory.PostGenerationMethodCall("set_password", "1234")
     is_staff = True
     is_superuser = True

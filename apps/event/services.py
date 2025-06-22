@@ -14,7 +14,7 @@ from apps.event.enums import (
 from apps.event.exceptions import (
     DataIntegrityError,
     EventNotAvailableError,
-    NotEnoughSeatsAvailableError
+    NotEnoughSeatsAvailableError,
 )
 from apps.event.models import TicketType, Transaction, Reservation, Ticket
 from apps.core.utils import generate_unique_code
@@ -47,7 +47,8 @@ class ReservationService:
         event = validated_data["event"]
 
         logger.info(
-            f"Starting reservation creation for user {user.id}, event {event.id}")
+            f"Starting reservation creation for user {user.id}, event {event.id}"
+        )
 
         ReservationService._validate_reservation_business_rules(
             event, ticket_type, ticket_quantity
@@ -62,15 +63,11 @@ class ReservationService:
         code = generate_unique_code("RSVP", "")
 
         reservation = Reservation.objects.create(
-            payment_status=payment_status,
-            status=status,
-            code=code,
-            **validated_data
+            payment_status=payment_status, status=status, code=code, **validated_data
         )
 
         # update available seats
-        ReservationService._update_ticket_availability(
-            ticket_type, ticket_quantity)
+        ReservationService._update_ticket_availability(ticket_type, ticket_quantity)
 
         logger.info(
             f"{user.email} successfully reserved {ticket_quantity} tickets for event {event.id}"
@@ -82,16 +79,15 @@ class ReservationService:
     def _validate_reservation_business_rules(event, ticket_type, ticket_quantity):
         # Check if event is available for reservation
         if not event.is_active or event.start_date < timezone.now():
-            raise EventNotAvailableError(
-                "Event is no longer available for reservation")
+            raise EventNotAvailableError("Event is no longer available for reservation")
 
         # Check seat availability
         if ticket_type.available_tickets < ticket_quantity:
             raise NotEnoughSeatsAvailableError(
                 detail={
-                    'message': f"Only {ticket_type.available_tickets} seats available.",
-                    'available': ticket_type.available_tickets,
-                    'requested': ticket_quantity
+                    "message": f"Only {ticket_type.available_tickets} seats available.",
+                    "available": ticket_type.available_tickets,
+                    "requested": ticket_quantity,
                 }
             )
 
@@ -105,8 +101,7 @@ class ReservationService:
             )
 
             status = DataLookup.objects.get(
-                type=RESERVATION_STATUS_TYPE,
-                value=ReservationStatuses.PENDING.value
+                type=RESERVATION_STATUS_TYPE, value=ReservationStatuses.PENDING.value
             )
 
             return payment_status, status
@@ -114,9 +109,7 @@ class ReservationService:
         except DataLookup.DoesNotExist as e:
             logger.error(f"Required lookup data not found: {str(e)}")
             raise DataIntegrityError(
-                detail={
-                    "System configuration error: Required status data not found"
-                }
+                detail={"System configuration error: Required status data not found"}
             )
 
     # TODO: Use this method for both updations using a flag (
@@ -125,21 +118,22 @@ class ReservationService:
     def _update_ticket_availability(ticket_type, quantity):
         try:
             # Use select_for_update to prevent race conditions
-            updated_ticket_type = TicketType.objects.select_for_update().get(id=ticket_type.id)
+            updated_ticket_type = TicketType.objects.select_for_update().get(
+                id=ticket_type.id
+            )
 
             if updated_ticket_type.available_tickets < quantity:
                 raise NotEnoughSeatsAvailableError(
                     detail={
-                        'available': updated_ticket_type.available_tickets,
-                        'requested': quantity
+                        "available": updated_ticket_type.available_tickets,
+                        "requested": quantity,
                     }
                 )
 
             updated_ticket_type.update_available_tickets(quantity)
 
         except ObjectDoesNotExist:
-            logger.error(
-                f"Ticket type {ticket_type.id} not found during update")
+            logger.error(f"Ticket type {ticket_type.id} not found during update")
             raise DataIntegrityError("Ticket type no longer exists")
 
 
@@ -166,8 +160,7 @@ class TransactionService:
             reservation=reservation,
             ticket_number=generate_unique_code("TKT", reservation.id),
             status=DataLookup.objects.get(
-                type=TICKET_STATUS_TYPE,
-                value=TicketStatuses.SOLD.value
+                type=TICKET_STATUS_TYPE, value=TicketStatuses.SOLD.value
             ),
             unit_price=ticket_type.price,
         )
@@ -185,8 +178,7 @@ class TransactionService:
 
         tickets = []
         for _ in range(quantity):
-            ticket = TransactionService._create_single_ticket(
-                ticket_type, reservation)
+            ticket = TransactionService._create_single_ticket(ticket_type, reservation)
             tickets.append(ticket.ticket_number)
         return tickets
 
@@ -196,12 +188,11 @@ class TransactionService:
         try:
             payment_status = DataLookup.objects.get(
                 type=RESERVATION_PAYMENT_STATUS_TYPE,
-                value=ReservationPaymentStatuses.PAID.value
+                value=ReservationPaymentStatuses.PAID.value,
             )
 
             status = DataLookup.objects.get(
-                type=RESERVATION_STATUS_TYPE,
-                value=ReservationStatuses.COMPLETED.value
+                type=RESERVATION_STATUS_TYPE, value=ReservationStatuses.COMPLETED.value
             )
 
             return payment_status, status
@@ -209,9 +200,7 @@ class TransactionService:
         except DataLookup.DoesNotExist as e:
             logger.error(f"Required lookup data not found: {str(e)}")
             raise DataIntegrityError(
-                detail={
-                    "System configuration error: Required status data not found"
-                }
+                detail={"System configuration error: Required status data not found"}
             )
 
     @staticmethod
@@ -232,9 +221,7 @@ class TransactionService:
 
         TransactionService._update_reservation_status(reservation)
 
-        total_amount = TransactionService._calculate_total_amount(
-            reservation
-        )
+        total_amount = TransactionService._calculate_total_amount(reservation)
 
         payment = TransactionService._create_transaction_record(
             reservation, total_amount

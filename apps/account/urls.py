@@ -3,14 +3,14 @@ from apps.account.views import (
     RoleViewSet,
     UserViewSet,
     USerProfileViewSet,
-    PasswordChangeViewSet
+    PasswordChangeViewSet,
 )
 
 router = DefaultRouter()
 
-router.register('roles', RoleViewSet, basename='roles')
-router.register('users', UserViewSet, 'users')
-router.register('profile', USerProfileViewSet, 'company-profile')
-router.register('change-password', PasswordChangeViewSet, 'change-password')
+router.register("roles", RoleViewSet, basename="roles")
+router.register("users", UserViewSet, "users")
+router.register("profile", USerProfileViewSet, "company-profile")
+router.register("change-password", PasswordChangeViewSet, "change-password")
 
 urlpatterns = router.urls

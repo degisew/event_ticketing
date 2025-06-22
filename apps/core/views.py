@@ -1,6 +1,5 @@
 from http import HTTPMethod
 from rest_framework import viewsets, mixins, status
-from rest_framework.permissions import AllowAny
 
 from apps.core.models import DataLookup
 from apps.core.permissions import (
@@ -40,7 +39,7 @@ class AbstractModelViewSet(viewsets.ModelViewSet):
 
 
 class DataLookupViewSet(AbstractModelViewSet):
-    http_method_names = ['get']
+    http_method_names = ["get"]
     permission_classes = [DataLookupAccessPolicy]
     queryset = DataLookup.objects.all()
     serializer_class = DataLookupSerializer

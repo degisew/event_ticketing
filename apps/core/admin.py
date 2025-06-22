@@ -45,9 +45,7 @@ class DataLookupAdmin(admin.ModelAdmin):
             _("Actions"),
             {
                 "classes": ("collapse",),
-                "fields": (
-                    "remark",
-                ),
+                "fields": ("remark",),
             },
         ),
     )
