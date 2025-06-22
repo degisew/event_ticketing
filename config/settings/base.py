@@ -35,7 +35,7 @@ SECRET_KEY = env(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+DEBUG = env("DEBUG", default=True)
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default=["*"])
 
@@ -50,7 +50,7 @@ SHOW_SWAGGER = env("SHOW_SWAGGER", default=True, cast=bool)
 ENV = env("ENV", default="development")
 
 # A list of all the people who get code error notifications.
-ADMINS = env("ADMINS")
+ADMINS = env("ADMINS", default="Degisew")
 
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", cast=bool, default=True)
 
