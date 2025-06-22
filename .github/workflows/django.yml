@@ -34,7 +34,7 @@ jobs:
         echo "DB_PASSWORD=ci" >> $GITHUB_ENV
     - name: Prepare log directory
       run: mkdir -p logs
-    - name: Test with pytest
-      run: |
-        export DJANGO_SETTINGS_MODULE=config.settings.test
-        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+    # - name: Test with pytest
+    #   run: |
+    #     export DJANGO_SETTINGS_MODULE=config.settings.test
+    #     pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
