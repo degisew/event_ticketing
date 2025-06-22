@@ -265,19 +265,13 @@ LOGGING = {
     'root': {
         'handlers': ['file', 'error_file', 'console'],
         'level': 'INFO',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-    },
+    }
 }
 
 # CELERY configuration
 CELERY_BROKER_URL = env(
     "CELERY_BROKER", default="redis://127.0.0.1:6379/0", cast=str,)
+
 CELERY_RESULT_BACKEND = env(
     "CELERY_BACKEND", cast=str, default="redis://127.0.0.1:6379/0")
 
