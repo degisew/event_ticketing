@@ -277,7 +277,7 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "jegisew21@gmail.com"
-EMAIL_HOST_PASSWORD = env("APP_PASSWORD", cast=str)
+EMAIL_HOST_PASSWORD = env("APP_PASSWORD", cast=str, default="abcd")
 
 # OPTIONAL
 DEFAULT_FROM_EMAIL = "Degisew Mengist <jegisew21@gmail.com>"
