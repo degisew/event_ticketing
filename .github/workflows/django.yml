@@ -29,6 +29,7 @@ jobs:
       run: |
         echo "DB_HOST=localhost" >> $GITHUB_ENV
         echo "DB_NAME=test" >> $GITHUB_ENV
+        echo "DB_PORT=1234" >> $GITHUB_ENV
         echo "DB_USER=ci" >> $GITHUB_ENV
         echo "DB_PASSWORD=ci" >> $GITHUB_ENV
     - name: Test with pytest

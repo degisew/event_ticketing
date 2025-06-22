@@ -31,7 +31,7 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env(
     "SECRET_KEY",
-    default="django-insecure-5pv!7=z5ml4tg&slnmbz#uij@g4+!s6%4uj0ayxb9&2w0+pxqe"
+    default="django-insecure-5pv!7=z5ml4tg&slnmbz#uij@g4+!s6(4uj0ayxb9&2w0+pxqe"
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -157,9 +157,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = env("TIME_ZONE", cast=str)
+TIME_ZONE = env("TIME_ZONE", cast=str, default="UTC")
 
-USE_TZ = env("USE_TZ", cast=bool)
+USE_TZ = env("USE_TZ", cast=bool, default=True)
 
 USE_I18N = True
 
@@ -216,8 +216,8 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": _(env("APP_TITLE", cast=str)),
-    "DESCRIPTION": _(env("APP_DESCRIPTION", cast=str)),
+    "TITLE": _(env("APP_TITLE", cast=str, default="Event Ticketing")),
+    "DESCRIPTION": _(env("APP_DESCRIPTION", cast=str, default="")),
     "VERSION": "1.0.0",
 }
 
