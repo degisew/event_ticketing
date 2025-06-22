@@ -32,6 +32,8 @@ jobs:
         echo "DB_PORT=1234" >> $GITHUB_ENV
         echo "DB_USER=ci" >> $GITHUB_ENV
         echo "DB_PASSWORD=ci" >> $GITHUB_ENV
+    - name: Prepare log directory
+      run: mkdir -p logs
     - name: Test with pytest
       run: |
         export DJANGO_SETTINGS_MODULE=config.settings.test
