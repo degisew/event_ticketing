@@ -1,11 +1,16 @@
 -r base.txt
 
 django-debug-toolbar==5.2.0
-Faker==22.5.0
-pytest==8.3.4
-pytest-django==4.9.0
-coverage==7.6.10
-pytest-cov==6.0.0
+Faker==37.4.0
+factory-boy==3.3.3
+iniconfig==2.1.0
+packaging==25.0
+pluggy==1.6.0
+pygments==2.19.2
+pytest==8.4.1
+pytest-django==4.11.1
+coverage==7.9.1
+pytest-cov==6.2.1
 
 # pre-commit
 pre-commit==4.2.0

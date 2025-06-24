@@ -71,6 +71,6 @@ class DataLookupAdmin(admin.ModelAdmin):
 admin.site.register(SystemSetting)
 
 
-admin.site.site_title = _(env("APP_TITLE", cast=str))
-admin.site.site_header = _(env("APP_TITLE", cast=str))
-admin.site.index_title = _(env("INDEX_TITLE", cast=str))
+admin.site.site_title = _(env("APP_TITLE", cast=str, default="Event Ticketing"))
+admin.site.site_header = _(env("APP_TITLE", cast=str, default="Event Ticketing"))
+admin.site.index_title = _(env("INDEX_TITLE", cast=str, default="Event Ticketing"))

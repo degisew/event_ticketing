@@ -22,6 +22,9 @@ env = environ.Env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
 # Take environment variables from .env file
 env.read_env(os.path.join(BASE_DIR, ".env"))
 
@@ -32,7 +35,7 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+DEBUG = env("DEBUG", default=True)
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", default=["*"])
 
@@ -49,9 +52,9 @@ ENV = env("ENV", default="development")
 # A list of all the people who get code error notifications.
 ADMINS = env("ADMINS")
 
-CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", cast=bool, default=True)
+CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", cast=bool)
 
-CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", default=["*"])
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
 # Application definition
 DJANGO_APPS = [
@@ -112,7 +115,7 @@ TEMPLATES = [
 
 
 if not DEBUG:
-    ADMIN_URL = env("ADMIN_URL", default="supersecretadmin/")
+    ADMIN_URL = env("ADMIN_URL")
 else:
     ADMIN_URL = env("ADMIN_URL", default="admin/")
 
@@ -154,9 +157,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = env("TIME_ZONE", cast=str)
+TIME_ZONE = env("TIME_ZONE", cast=str, default="UTC")
 
-USE_TZ = env("USE_TZ", cast=bool)
+USE_TZ = env("USE_TZ", cast=bool, default=True)
 
 USE_I18N = True
 
@@ -235,13 +238,13 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "logs/ticketing.log",
+            "filename": str(LOG_DIR / "errors.log"),
             "formatter": "verbose",
         },
         "error_file": {
             "level": "ERROR",
             "class": "logging.FileHandler",
-            "filename": "logs/errors.log",
+            "filename": str(LOG_DIR / "errors.log"),
             "formatter": "verbose",
         },
         "console": {
