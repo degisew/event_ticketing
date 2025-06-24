@@ -155,9 +155,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = env("TIME_ZONE", cast=str)
+TIME_ZONE = env("TIME_ZONE", cast=str, default="UTC")
 
-USE_TZ = env("USE_TZ", cast=bool)
+USE_TZ = env("USE_TZ", cast=bool, default=True)
 
 USE_I18N = True
 
