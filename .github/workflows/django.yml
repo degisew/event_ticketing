@@ -2,13 +2,19 @@ name: Django CI
 
 on:
   push:
-    branches: [ "development" ]
+    branches: ["development"]
   pull_request:
-    branches: [ "development" ]
+    branches: ["development"]
 
 jobs:
-  build:
+  load_secrets:
+    uses: ./.github/workflows/load_secrets.yml
+    secrets: inherit
+    with:
+      output-format: dotenv
 
+  build:
+    needs: load_secrets
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -16,23 +22,32 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements/dev.txt
-    - name: Test with pytest
-      env:
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DJANGO_SETTINGS_MODULE: config.settings.test
-      run: |
-        pytest --doctest-modules \
-               --junitxml=junit/test-results.xml \
-               --cov=com --cov-report=xml --cov-report=html
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/dev.txt
+
+      - name: Load secrets from .env
+        run: |
+          # Copy .env from load_secrets job (assumes it's in workspace)
+          if [ -f .env ]; then
+            cat .env >> $GITHUB_ENV
+          else
+            echo "Error: .env file not found"
+            exit 1
+          fi
+
+      - name: Test with pytest
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test
+        run: |
+          pytest --doctest-modules \
+                 --junitxml=junit/test-results.xml \
+                 --cov=com --cov-report=xml --cov-report=html
