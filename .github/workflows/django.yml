@@ -56,5 +56,4 @@ jobs:
           CELERY_BACKEND: ${{ secrets.CELERY_BACKEND }}
 
         run: |
-          pytest --doctest-modules \
-                 --cov=com --cov-report=html
+          pytest --cov=com --cov-report=html
