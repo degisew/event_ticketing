@@ -6,6 +6,36 @@ on:
   pull_request:
     branches: ["development"]
 
+env:
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  ENV: ${{ secrets.ENV }}
+  DEBUG: ${{ secrets.DEBUG }}
+  ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+  CORS_ALLOW_ALL_ORIGINS: ${{ secrets.CORS_ALLOW_ALL_ORIGINS }}
+  CSRF_TRUSTED_ORIGINS: ${{ secrets.CSRF_TRUSTED_ORIGINS }}
+  ADMINS: ${{ secrets.ADMINS }}
+  SHOW_SWAGGER: ${{ secrets.SHOW_SWAGGER }}
+  APP_TITLE: ${{ secrets.APP_TITLE }}
+  APP_DESCRIPTION: ${{ secrets.APP_DESCRIPTION }}
+  INDEX_TITLE: ${{ secrets.INDEX_TITLE }}
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  PGADMIN_DEFAULT_EMAIL: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
+  PGADMIN_DEFAULT_PASSWORD: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
+  APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+  TIME_ZON: ${{ secrets.TIME_ZONE }}
+  USE_TZ: ${{ secrets.USE_TZ }}
+  UID: ${{ secrets.UID }}
+  GID: ${{ secrets.GID }}
+  CELERY_BROKER: ${{ secrets.CELERY_BROKER }}
+  CELERY_BACKEND: ${{ secrets.CELERY_BACKEND }}
+
 jobs:
   lint:
     name: Lint with ruff
@@ -18,7 +48,7 @@ jobs:
       - name: Install Ruff
         run: pip install ruff
       - name: Run Ruff
-        run: ruff .
+        run: ruff
 
   test:
     name: Run Tests
@@ -26,37 +56,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
-
-    env:
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      ENV: ${{ secrets.ENV }}
-      DEBUG: ${{ secrets.DEBUG }}
-      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
-      CORS_ALLOW_ALL_ORIGINS: ${{ secrets.CORS_ALLOW_ALL_ORIGINS }}
-      CSRF_TRUSTED_ORIGINS: ${{ secrets.CSRF_TRUSTED_ORIGINS }}
-      ADMINS: ${{ secrets.ADMINS }}
-      SHOW_SWAGGER: ${{ secrets.SHOW_SWAGGER }}
-      APP_TITLE: ${{ secrets.APP_TITLE }}
-      APP_DESCRIPTION: ${{ secrets.APP_DESCRIPTION }}
-      INDEX_TITLE: ${{ secrets.INDEX_TITLE }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      PGADMIN_DEFAULT_EMAIL: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
-      PGADMIN_DEFAULT_PASSWORD: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
-      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
-      TIME_ZON: ${{ secrets.TIME_ZONE }}
-      USE_TZ: ${{ secrets.USE_TZ }}
-      UID: ${{ secrets.UID }}
-      GID: ${{ secrets.GID }}
-      CELERY_BROKER: ${{ secrets.CELERY_BROKER }}
-      CELERY_BACKEND: ${{ secrets.CELERY_BACKEND }}
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v3
@@ -69,17 +68,15 @@ jobs:
       - name: Run Tests
         run: |
           pytest --ds=config.settings.test --cov=com --cov-report=html
-      - name: Upload coverage
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: htmlcov
+          name: coverage-html-report-${{ matrix.python-version }}
           path: htmlcov/
 
   check-migrations:
     name: Check Migrations
     runs-on: ubuntu-latest
-    env:
-      SECRET_KEY: dummy
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v3
