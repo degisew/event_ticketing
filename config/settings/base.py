@@ -22,6 +22,9 @@ env = environ.Env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
 # Take environment variables from .env file
 env.read_env(os.path.join(BASE_DIR, ".env"))
 
@@ -29,8 +32,7 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env(
-    "SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=True)
@@ -236,13 +238,13 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "logs/ticketing.log",
+            "filename": str(LOG_DIR / "errors.log"),
             "formatter": "verbose",
         },
         "error_file": {
             "level": "ERROR",
             "class": "logging.FileHandler",
-            "filename": "logs/errors.log",
+            "filename": str(LOG_DIR / "errors.log"),
             "formatter": "verbose",
         },
         "console": {
