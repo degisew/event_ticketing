@@ -30,9 +30,7 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env(
-    "SECRET_KEY",
-    default="django-insecure-5pv!7=z5ml4tg&slnmbz#uij@g4+!s6(4uj0ayxb9&2w0+pxqe"
-)
+    "SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=True)
@@ -50,11 +48,11 @@ SHOW_SWAGGER = env("SHOW_SWAGGER", default=True, cast=bool)
 ENV = env("ENV", default="development")
 
 # A list of all the people who get code error notifications.
-ADMINS = env("ADMINS", default="Degisew")
+ADMINS = env("ADMINS")
 
-CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", cast=bool, default=True)
+CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", cast=bool)
 
-CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", default=["*"])
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
 # Application definition
 DJANGO_APPS = [
@@ -115,7 +113,7 @@ TEMPLATES = [
 
 
 if not DEBUG:
-    ADMIN_URL = env("ADMIN_URL", default="supersecretadmin/")
+    ADMIN_URL = env("ADMIN_URL")
 else:
     ADMIN_URL = env("ADMIN_URL", default="admin/")
 
@@ -157,9 +155,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = env("TIME_ZONE", cast=str, default="UTC")
+TIME_ZONE = env("TIME_ZONE", cast=str)
 
-USE_TZ = env("USE_TZ", cast=bool, default=True)
+USE_TZ = env("USE_TZ", cast=bool)
 
 USE_I18N = True
 
@@ -216,8 +214,8 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": _(env("APP_TITLE", cast=str, default="Event Ticketing")),
-    "DESCRIPTION": _(env("APP_DESCRIPTION", cast=str, default="")),
+    "TITLE": _(env("APP_TITLE", cast=str)),
+    "DESCRIPTION": _(env("APP_DESCRIPTION", cast=str)),
     "VERSION": "1.0.0",
 }
 
@@ -277,7 +275,7 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "jegisew21@gmail.com"
-EMAIL_HOST_PASSWORD = env("APP_PASSWORD", cast=str, default="abcd")
+EMAIL_HOST_PASSWORD = env("APP_PASSWORD", cast=str)
 
 # OPTIONAL
 DEFAULT_FROM_EMAIL = "Degisew Mengist <jegisew21@gmail.com>"
