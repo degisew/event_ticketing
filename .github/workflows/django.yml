@@ -24,6 +24,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download .env artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: secrets-env
+          path: .
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
@@ -36,9 +42,13 @@ jobs:
 
       - name: Load secrets from .env
         run: |
-          # Copy .env from load_secrets job (assumes it's in workspace)
           if [ -f .env ]; then
-            cat .env >> $GITHUB_ENV
+            # Load .env into environment variables
+            while IFS= read -r line; do
+              # Skip empty lines and comments
+              [[ -z "$line" || "$line" =~ ^# ]] && continue
+              echo "$line" >> $GITHUB_ENV
+            done < .env
           else
             echo "Error: .env file not found"
             exit 1
