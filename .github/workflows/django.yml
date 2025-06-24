@@ -1,4 +1,4 @@
-name: Django CI
+name: CI
 
 on:
   push:
@@ -29,7 +29,7 @@ env:
   PGADMIN_DEFAULT_EMAIL: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
   PGADMIN_DEFAULT_PASSWORD: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
   APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
-  TIME_ZON: ${{ secrets.TIME_ZONE }}
+  TIME_ZONE: ${{ secrets.TIME_ZONE }}
   USE_TZ: ${{ secrets.USE_TZ }}
   UID: ${{ secrets.UID }}
   GID: ${{ secrets.GID }}
@@ -61,18 +61,21 @@ jobs:
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements/dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements/dev.txt
       - name: Run Tests
         run: |
-          pytest --ds=config.settings.test --cov=com --cov-report=html
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html-report-${{ matrix.python-version }}
-          path: htmlcov/
+          pytest --ds=config.settings.test
 
   check-migrations:
     name: Check Migrations
