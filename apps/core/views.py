@@ -1,4 +1,3 @@
-from http import HTTPMethod
 from rest_framework import viewsets, mixins, status
 
 from apps.core.models import DataLookup
@@ -67,7 +66,7 @@ class SystemSettingViewSet(
     @action(
         url_path="reset",
         detail=True,
-        methods=[HTTPMethod.PATCH],
+        methods=["patch"],
         serializer_class=ResetSystemSettingSerializer,
     )
     def reset(self, request, *args, **kwargs):

@@ -1,1 +1,1 @@
-from .base import *  # noqa 403
+from config.settings.base import *  # noqa 403
