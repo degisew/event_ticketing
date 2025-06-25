@@ -2,6 +2,12 @@
 logs/
 docs/internal/*
 
+
+# debug static files
+staticfiles/debug_toolbar
+staticfiles/silk
+staticfiles/rest_framework
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
