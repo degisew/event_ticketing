@@ -7,6 +7,7 @@ docs/internal/*
 staticfiles/debug_toolbar
 staticfiles/silk
 staticfiles/rest_framework
+staticfiles/admin
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
