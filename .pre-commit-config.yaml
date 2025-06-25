@@ -50,7 +50,7 @@ repos:
     rev: v1.0.0
     hooks:
       - id: branch-name-linter
-        stages: [push]
+        stages: [pre-push]
         args: ['--pattern', '^(feature|bugfix|hotfix|refactor|chore|docs)/[a-z0-9\\-_]+$']
 
 # sets up .pre-commit-ci.yaml to ensure pre-commit dependencies stay up to date
