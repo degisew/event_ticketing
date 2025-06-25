@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -28,6 +29,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+
 
 api_v1_patterns = [
     path("account/", include("apps.account.urls")),
@@ -62,9 +64,9 @@ if settings.SHOW_SWAGGER:
 
 
 if settings.DEBUG:
-    from debug_toolbar.toolbar import debug_toolbar_urls
+    # from debug_toolbar.toolbar import debug_toolbar_urls
     urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
-    urlpatterns += debug_toolbar_urls()
+    # urlpatterns += debug_toolbar_urls()
 
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
