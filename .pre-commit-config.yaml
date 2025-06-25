@@ -51,7 +51,7 @@ repos:
     hooks:
       - id: branch-name-checker
         name: branch-name-checker
-        entry: ./scripts/check_branch_name.sh
+        entry: ./scripts/check_branch_naming.sh
         language: script
         stages: [push]
 
