@@ -88,11 +88,13 @@ class ReservationSerializer(serializers.ModelSerializer):
     def validate_ticket_quantity(self, value):
         """Validate ticket quantity is positive and within limits"""
         if value <= 0:
-            raise serializers.ValidationError("Ticket quantity must be positive")
+            raise serializers.ValidationError(
+                "Ticket quantity must be positive")
 
         # TODO: We assume 10 ticket per reservation. refine it.
         if value > 10:
-            raise serializers.ValidationError("Maximum 10 tickets per reservation")
+            raise serializers.ValidationError(
+                "Maximum 10 tickets per reservation")
 
         return value
 
@@ -116,7 +118,8 @@ class ReservationSerializer(serializers.ModelSerializer):
             return attrs
 
         except Exception as e:
-            logger.error(f"Validation error in ReservationSerializer: {str(e)}")
+            logger.error(
+                f"Validation error in ReservationSerializer: {str(e)}")
 
             raise serializers.ValidationError("Invalid reservation data")
 
@@ -136,8 +139,10 @@ class ReservationSerializer(serializers.ModelSerializer):
                 instance, context=self.context
             ).to_representation(instance)
         except Exception as e:
-            logger.error(f"Error in to_representation: {str(e)}", exc_info=True)
-            raise SerializationError("Unable to fully serialize reservation details.")
+            logger.error(
+                f"Error in to_representation: {str(e)}", exc_info=True)
+            raise SerializationError(
+                "Unable to fully serialize reservation details.")
 
 
 class TicketResponseSerializer(serializers.ModelSerializer):

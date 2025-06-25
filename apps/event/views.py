@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import AllowAny
 from apps.event.permissions import (
     EventAccessPolicy,
     TransactionAccessPolicy,
@@ -12,7 +13,13 @@ from apps.event.filters import (
     TicketTypeFilter,
     ReservationFilter,
 )
-from apps.event.models import Event, TicketType, Transaction, Reservation, Ticket
+from apps.event.models import (
+    Event,
+    TicketType,
+    Transaction,
+    Reservation,
+    Ticket
+)
 from apps.core.views import AbstractModelViewSet
 from apps.event.serializers import (
     EventSerializer,
@@ -24,7 +31,7 @@ from apps.event.serializers import (
 
 
 class EventViewSet(AbstractModelViewSet):
-    permission_classes = [EventAccessPolicy]
+    permission_classes = [AllowAny]
     serializer_class = EventSerializer
     queryset = Event.objects.all()
     filter_backends = [DjangoFilterBackend]
