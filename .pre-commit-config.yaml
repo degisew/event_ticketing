@@ -39,19 +39,21 @@ repos:
       - id: djlint-reformat-django
       - id: djlint-django
 
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+  - repo: local
     hooks:
-      - id: check-commit-message
+      - id: commit-msg-linter
+        name: commit-msg-linter
+        entry: ./scripts/check_commit_message.sh
+        language: script
         stages: [commit-msg]
-        args: ['--pattern', '^(feat|fix|docs|style|refactor|test|chore)(\\([a-z0-9\\-]+\\))?: .+']
 
-  - repo: https://github.com/jeris90/branch-name-linter
-    rev: v1.0.0
+  - repo: local
     hooks:
-      - id: branch-name-linter
-        stages: [pre-push]
-        args: ['--pattern', '^(feature|bugfix|hotfix|refactor|chore|docs)/[a-z0-9\\-_]+$']
+      - id: branch-name-checker
+        name: branch-name-checker
+        entry: ./scripts/check_branch_name.sh
+        language: script
+        stages: [push]
 
 # sets up .pre-commit-ci.yaml to ensure pre-commit dependencies stay up to date
 ci:
