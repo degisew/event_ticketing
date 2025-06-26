@@ -2,7 +2,17 @@ from apps.core.models import DataLookup, SystemSetting
 from rest_framework import serializers
 
 
-class DataLookupSerializer(serializers.ModelSerializer):
+class DynamicFieldsModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, fields=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if fields:
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+
+class DataLookupResponseSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = DataLookup
         fields = [

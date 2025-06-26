@@ -6,7 +6,7 @@ from apps.core.validators import validate_email, validate_password
 from apps.account.enums import AccountState
 from apps.account.models import Role, UserProfile
 from apps.core.models import DataLookup
-from apps.core.serializers import DataLookupSerializer
+from apps.core.serializers import DataLookupResponseSerializer, DynamicFieldsModelSerializer
 
 
 User = get_user_model()
@@ -18,8 +18,8 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "code", "created_at", "updated_at"]
 
 
-class UserResponseSerializer(serializers.ModelSerializer):
-    state = DataLookupSerializer()
+class UserResponseSerializer(DynamicFieldsModelSerializer):
+    state = DataLookupResponseSerializer(fields=["name", "remark"])
     role = RoleSerializer()
 
     class Meta:
@@ -62,7 +62,8 @@ class UserSerializer(serializers.ModelSerializer):
                 type=AccountState.TYPE.value, value=AccountState.ACTIVE.value
             )
         except DataLookup.DoesNotExist:
-            raise serializers.ValidationError("Active state not found in DataLookup.")
+            raise serializers.ValidationError(
+                "Active state not found in DataLookup.")
 
         role_id = validated_data.pop("role", None)
 
@@ -81,9 +82,10 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def to_representation(self, instance):
-        return UserResponseSerializer(instance, self.context).to_representation(
-            instance
-        )
+        return UserResponseSerializer(
+            instance,
+            self.context
+        ).to_representation(instance)
 
 
 class PasswordChangeSerializer(serializers.Serializer):

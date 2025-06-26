@@ -1,7 +1,7 @@
 import logging
 from rest_framework import serializers
-from apps.account.serializers import UserSerializer
-from apps.core.serializers import DataLookupSerializer
+from apps.account.serializers import UserResponseSerializer
+from apps.core.serializers import DataLookupResponseSerializer, DynamicFieldsModelSerializer
 from apps.event.exceptions import SerializationError
 from apps.event.models import Event, Ticket, Reservation, TicketType, Transaction
 from apps.core.utils import generate_unique_code
@@ -17,7 +17,6 @@ class EventResponseSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "code",
-            "organizer",
             "description",
             "start_date",
             "end_date",
@@ -59,21 +58,61 @@ class EventSerializer(serializers.ModelSerializer):
         ).to_representation(instance)
 
 
+class TicketTypeResponseSerializer(DynamicFieldsModelSerializer):
+    category = DataLookupResponseSerializer(fields=["name", "remark"])
+
+    class Meta:
+        model = TicketType
+        fields = [
+            "id",
+            "category",
+            "event",
+            "price",
+            "total_tickets",
+            "available_tickets",
+        ]
+
+
+class TicketTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TicketType
+        fields = ["category", "event", "price", "total_tickets"]
+
+    def to_representation(self, instance):
+        return TicketTypeResponseSerializer(
+            instance, context=self.context
+        ).to_representation(instance)
+
+
 class ReservationResponseSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    event = EventSerializer()
+    user = UserResponseSerializer(fields=["email"])
+    ticket_type = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    payment_status = serializers.SerializerMethodField()
 
     class Meta:
         model = Reservation
         fields = [
             "id",
             "user",
-            "event",
+            "ticket_type",
             "reserved_date",
+            "status",
             "payment_status",
             "created_at",
             "updated_at",
         ]
+
+    # * Doing all this below to avoid nested dict response format
+    # * Since we already preloaded, it doesn't add N + 1 query
+    def get_status(self, obj):
+        return obj.status.name if obj.status else None
+
+    def get_payment_status(self, obj):
+        return obj.payment_status.name if obj.payment_status else None
+
+    def get_ticket_type(self, obj):
+        return obj.ticket_type.category.name
 
 
 class ReservationSerializer(serializers.ModelSerializer):
@@ -169,46 +208,25 @@ class TicketSerializer(serializers.ModelSerializer):
         ).to_representation(instance)
 
 
-class TicketTypeResponseSerializer(serializers.ModelSerializer):
-    category = DataLookupSerializer()
-
-    class Meta:
-        model = TicketType
-        fields = [
-            "id",
-            "category",
-            "event",
-            "price",
-            "total_tickets",
-            "available_tickets",
-        ]
-
-
-class TicketTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TicketType
-        fields = ["category", "event", "price", "total_tickets"]
-
-    def to_representation(self, instance):
-        return TicketTypeResponseSerializer(
-            instance, context=self.context
-        ).to_representation(instance)
-
-
 class TransactionResponseSerializer(serializers.ModelSerializer):
-    reservation = ReservationSerializer()
+    # reservation = ReservationSerializer()
+    event = serializers.SerializerMethodField()
 
     class Meta:
         model = Transaction
         fields = [
             "id",
-            "reservation",
+            # "reservation",
+            "event",
             "transaction_date",
             "amount",
             "payment_method",
             "created_at",
             "updated_at",
         ]
+
+    def get_event(self, obj):
+        return obj.reservation.event.name
 
 
 class TransactionSerializer(serializers.ModelSerializer):

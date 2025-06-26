@@ -6,7 +6,7 @@ from apps.core.permissions import (
     SystemSettingAccessPolicy,
 )
 from apps.core.serializers import (
-    DataLookupSerializer,
+    DataLookupResponseSerializer,
     DataLookupTypeSerializer,
     SystemSettingSerializer,
     SystemSettingResponseSerializer,
@@ -41,7 +41,7 @@ class DataLookupViewSet(AbstractModelViewSet):
     http_method_names = ["get"]
     permission_classes = [DataLookupAccessPolicy]
     queryset = DataLookup.objects.all()
-    serializer_class = DataLookupSerializer
+    serializer_class = DataLookupResponseSerializer
 
 
 class DataLookupTypeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -58,7 +58,7 @@ class SystemSettingViewSet(
     viewsets.GenericViewSet,
 ):
     permission_classes = [SystemSettingAccessPolicy]
-    queryset = SystemSetting.objects.all()
+    queryset = SystemSetting.objects.select_related("data_type").all()
     http_method_names = ["get", "post", "patch"]
     serializer_class = SystemSettingSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
