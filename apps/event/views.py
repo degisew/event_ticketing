@@ -6,9 +6,7 @@ from apps.core.views import AbstractModelViewSet
 from apps.event.permissions import (
     EventAccessPolicy,
     TransactionAccessPolicy,
-    ReservationAccessPolicy,
     TicketAccessPolicy,
-    TicketTypeAccessPolicy,
 )
 from apps.event.filters import (
     EventFilter,
@@ -16,13 +14,7 @@ from apps.event.filters import (
     TicketTypeFilter,
     ReservationFilter,
 )
-from apps.event.models import (
-    Event,
-    TicketType,
-    Transaction,
-    Reservation,
-    Ticket
-)
+from apps.event.models import Event, TicketType, Transaction, Reservation, Ticket
 from apps.event.serializers import (
     EventSerializer,
     TicketTypeSerializer,

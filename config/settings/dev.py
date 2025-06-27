@@ -5,10 +5,10 @@ from config.settings.base import (
     INSTALLED_APPS,
     MIDDLEWARE,
     REST_FRAMEWORK,
-    ALLOWED_HOSTS
+    ALLOWED_HOSTS,
 )
 
-REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = []
+REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
 
 INSTALLED_APPS += [
     "drf_spectacular",

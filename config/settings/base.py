@@ -127,7 +127,7 @@ else:
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.parse(
+    "default": dj_database_url.parse(
         env("DOCKER_DATABASE_URL" if DOCKER else "LOCAL_DATABASE_URL")
     )
 }

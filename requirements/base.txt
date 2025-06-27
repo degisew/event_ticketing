@@ -46,4 +46,3 @@ prometheus-client==0.21.1
 pytz==2025.2
 tornado==6.4.2
 qrcode==8.0
-
