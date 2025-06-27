@@ -1,6 +1,6 @@
 # import socket
 from config.settings.base import *  # noqa F403
-from config.settings.base import INSTALLED_APPS, MIDDLEWARE
+from config.settings.base import INSTALLED_APPS, MIDDLEWARE, ALLOWED_HOSTS
 
 INSTALLED_APPS += [
     "drf_spectacular",
@@ -9,7 +9,7 @@ INSTALLED_APPS += [
 ]
 
 MIDDLEWARE += [
-    'silk.middleware.SilkyMiddleware',
+    "silk.middleware.SilkyMiddleware",
     # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 

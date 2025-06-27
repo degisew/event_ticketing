@@ -28,9 +28,7 @@ class RoleViewSet(AbstractModelViewSet):
 class UserViewSet(AbstractModelViewSet):
     permission_classes = [UserAccessPolicy]
     serializer_class = UserSerializer
-    queryset = User.objects.select_related(
-        "role", "state"
-    ).all()
+    queryset = User.objects.select_related("role", "state").all()
 
 
 class PasswordChangeViewSet(viewsets.ViewSet):

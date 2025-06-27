@@ -13,13 +13,7 @@ from apps.event.filters import (
     TicketTypeFilter,
     ReservationFilter,
 )
-from apps.event.models import (
-    Event,
-    TicketType,
-    Transaction,
-    Reservation,
-    Ticket
-)
+from apps.event.models import Event, TicketType, Transaction, Reservation, Ticket
 from apps.event.serializers import (
     EventSerializer,
     TicketTypeSerializer,
@@ -51,19 +45,14 @@ class TicketTypeViewSet(AbstractModelViewSet):
     serializer_class = TicketTypeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_classes = [TicketTypeFilter]
-    queryset = TicketType.objects.select_related(
-        "category"
-    ).all()
+    queryset = TicketType.objects.select_related("category").all()
 
 
 class ReservationViewSet(AbstractModelViewSet):
     permission_classes = [ReservationAccessPolicy]
     serializer_class = ReservationSerializer
     queryset = Reservation.objects.select_related(
-        "user",
-        "ticket_type__category",
-        "payment_status",
-        "status"
+        "user", "ticket_type__category", "payment_status", "status"
     ).all()
     filter_backends = [DjangoFilterBackend]
     filterset_classes = [ReservationFilter]

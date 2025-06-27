@@ -7,4 +7,3 @@ while IFS='=' read -r key value; do
     echo -e "\e[1;32m✓ $key uploaded\e[0m"
   fi
 done < .env.ci
-
