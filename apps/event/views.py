@@ -1,4 +1,7 @@
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import AllowAny
 from apps.core.views import AbstractModelViewSet
 from apps.event.permissions import (
     EventAccessPolicy,
@@ -13,7 +16,13 @@ from apps.event.filters import (
     TicketTypeFilter,
     ReservationFilter,
 )
-from apps.event.models import Event, TicketType, Transaction, Reservation, Ticket
+from apps.event.models import (
+    Event,
+    TicketType,
+    Transaction,
+    Reservation,
+    Ticket
+)
 from apps.event.serializers import (
     EventSerializer,
     TicketTypeSerializer,
@@ -40,16 +49,18 @@ class TicketViewSet(AbstractModelViewSet):
     filterset_classes = [TicketFilter]
 
 
+@method_decorator(cache_page(60 * 15), name="dispatch")
 class TicketTypeViewSet(AbstractModelViewSet):
-    permission_classes = [TicketTypeAccessPolicy]
+    permission_classes = [AllowAny]
     serializer_class = TicketTypeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_classes = [TicketTypeFilter]
-    queryset = TicketType.objects.select_related("category").all()
+    queryset = TicketType.objects.select_related("category", "event").all()
 
 
+@method_decorator(cache_page(60 * 15), name="dispatch")
 class ReservationViewSet(AbstractModelViewSet):
-    permission_classes = [ReservationAccessPolicy]
+    permission_classes = [AllowAny]
     serializer_class = ReservationSerializer
     queryset = Reservation.objects.select_related(
         "user", "ticket_type__category", "payment_status", "status"
