@@ -6,7 +6,10 @@ from apps.core.validators import validate_email, validate_password
 from apps.account.enums import AccountState
 from apps.account.models import Role, UserProfile
 from apps.core.models import DataLookup
-from apps.core.serializers import DataLookupSerializer
+from apps.core.serializers import (
+    DataLookupResponseSerializer,
+    DynamicFieldsModelSerializer,
+)
 
 
 User = get_user_model()
@@ -18,8 +21,8 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "code", "created_at", "updated_at"]
 
 
-class UserResponseSerializer(serializers.ModelSerializer):
-    state = DataLookupSerializer()
+class UserResponseSerializer(DynamicFieldsModelSerializer):
+    state = DataLookupResponseSerializer(fields=["name", "remark"])
     role = RoleSerializer()
 
     class Meta:

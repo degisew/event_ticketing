@@ -19,7 +19,6 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
-from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -40,8 +39,7 @@ api_v1_patterns = [
 urlpatterns = [
     path(f"{settings.ADMIN_URL}", admin.site.urls),
     path("api/v1/", include(api_v1_patterns)),
-    path("api/v1/auth/login/", TokenObtainPairView.as_view(),
-         name="token_obtain_pair"),
+    path("api/v1/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/v1/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
 
@@ -65,8 +63,7 @@ if settings.SHOW_SWAGGER:
 
 if settings.DEBUG:
     # from debug_toolbar.toolbar import debug_toolbar_urls
-    urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
+    urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
     # urlpatterns += debug_toolbar_urls()
 
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

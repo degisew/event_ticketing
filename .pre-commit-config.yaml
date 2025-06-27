@@ -26,14 +26,11 @@ repos:
       - id: django-upgrade
         args: ['--target-version', '5.0']
 
-  # Run the Ruff linter.
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.7.1
     hooks:
-      # Linter
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-      # Formatter
       - id: ruff-format
 
   - repo: https://github.com/Riverside-Healthcare/djLint
@@ -41,6 +38,22 @@ repos:
     hooks:
       - id: djlint-reformat-django
       - id: djlint-django
+
+  - repo: local
+    hooks:
+      - id: commit-msg-linter
+        name: commit-msg-linter
+        entry: ./scripts/check_commit_message.sh
+        language: script
+        stages: [commit-msg]
+
+  - repo: local
+    hooks:
+      - id: branch-name-checker
+        name: branch-name-checker
+        entry: ./scripts/check_branch_naming.sh
+        language: script
+        stages: [push]
 
 # sets up .pre-commit-ci.yaml to ensure pre-commit dependencies stay up to date
 ci:
