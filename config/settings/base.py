@@ -50,7 +50,7 @@ SHOW_SWAGGER = env("SHOW_SWAGGER", default=True, cast=bool)
 
 ENV = env("ENV", default="development")
 
-DOCKER = env("DOCKER", default=True, cast=bool)
+DOCKER_APP = env("DOCKER_APP", default=True, cast=bool)
 
 # A list of all the people who get code error notifications.
 ADMINS = env("ADMINS")
@@ -128,7 +128,7 @@ else:
 
 DATABASES = {
     "default": dj_database_url.parse(
-        env("DOCKER_DATABASE_URL" if DOCKER else "LOCAL_DATABASE_URL")
+        env("DOCKER_DATABASE_URL" if DOCKER_APP else "LOCAL_DATABASE_URL")
     )
 }
 
