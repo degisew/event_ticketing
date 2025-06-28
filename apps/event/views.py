@@ -1,12 +1,8 @@
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import AllowAny
 from apps.core.views import AbstractModelViewSet
-from apps.event.permissions import (
-    EventAccessPolicy,
-    TransactionAccessPolicy,
-    ReservationAccessPolicy,
-    TicketAccessPolicy,
-    TicketTypeAccessPolicy,
-)
 from apps.event.filters import (
     EventFilter,
     TicketFilter,
@@ -24,7 +20,7 @@ from apps.event.serializers import (
 
 
 class EventViewSet(AbstractModelViewSet):
-    permission_classes = [EventAccessPolicy]
+    permission_classes = [AllowAny]
     serializer_class = EventSerializer
     queryset = Event.objects.all()
     filter_backends = [DjangoFilterBackend]
@@ -32,7 +28,7 @@ class EventViewSet(AbstractModelViewSet):
 
 
 class TicketViewSet(AbstractModelViewSet):
-    permission_classes = [TicketAccessPolicy]
+    permission_classes = [AllowAny]
     http_method_names = ["get"]
     serializer_class = TicketResponseSerializer
     queryset = Ticket.objects.all()
@@ -40,16 +36,18 @@ class TicketViewSet(AbstractModelViewSet):
     filterset_classes = [TicketFilter]
 
 
+@method_decorator(cache_page(60 * 15), name="list")
 class TicketTypeViewSet(AbstractModelViewSet):
-    permission_classes = [TicketTypeAccessPolicy]
+    permission_classes = [AllowAny]
     serializer_class = TicketTypeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_classes = [TicketTypeFilter]
-    queryset = TicketType.objects.select_related("category").all()
+    queryset = TicketType.objects.select_related("category", "event").all()
 
 
+@method_decorator(cache_page(60 * 15), name="list")
 class ReservationViewSet(AbstractModelViewSet):
-    permission_classes = [ReservationAccessPolicy]
+    permission_classes = [AllowAny]
     serializer_class = ReservationSerializer
     queryset = Reservation.objects.select_related(
         "user", "ticket_type__category", "payment_status", "status"
@@ -59,7 +57,7 @@ class ReservationViewSet(AbstractModelViewSet):
 
 
 class TransactionViewSet(AbstractModelViewSet):
-    permission_classes = [TransactionAccessPolicy]
+    permission_classes = [AllowAny]
     http_method_names = ["get", "post"]
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.select_related(

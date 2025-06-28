@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 # import csv
 import os
+import dj_database_url
 import environ
 from pathlib import Path
 from datetime import timedelta
@@ -48,6 +49,8 @@ ROOT_URLCONF = "config.urls"
 SHOW_SWAGGER = env("SHOW_SWAGGER", default=True, cast=bool)
 
 ENV = env("ENV", default="development")
+
+DOCKER_APP = env("DOCKER_APP", default=True, cast=bool)
 
 # A list of all the people who get code error notifications.
 ADMINS = env("ADMINS")
@@ -124,15 +127,21 @@ else:
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": env("DB_HOST"),
-        "PORT": env("DB_PORT"),
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
-        "PASSWORD": env("DB_PASSWORD"),
-    }
+    "default": dj_database_url.parse(
+        env("DOCKER_DATABASE_URL" if DOCKER_APP else "LOCAL_DATABASE_URL")
+    )
 }
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "HOST": env("DB_HOST"),
+#         "PORT": env("DB_PORT"),
+#         "NAME": env("DB_NAME"),
+#         "USER": env("DB_USER"),
+#         "PASSWORD": env("DB_PASSWORD"),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
