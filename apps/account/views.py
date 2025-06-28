@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from apps.account.models import Role, UserProfile
-from apps.account.permissions import UserAccessPolicy
 from apps.account.serializers import (
     PasswordChangeSerializer,
     RoleSerializer,
@@ -26,7 +25,7 @@ class RoleViewSet(AbstractModelViewSet):
 
 
 class UserViewSet(AbstractModelViewSet):
-    permission_classes = [UserAccessPolicy]
+    permission_classes = [AllowAny]
     serializer_class = UserSerializer
     queryset = User.objects.select_related("role", "state").all()
 
