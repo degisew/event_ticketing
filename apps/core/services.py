@@ -24,6 +24,7 @@ class DataLookupService:
             except DataLookup.DoesNotExist:
                 raise DataIntegrityError(
                     detail={
-                        "System configuration error: Required DataLookup not found."}
+                        "System configuration error: Required DataLookup not found."
+                    }
                 )
         return result
