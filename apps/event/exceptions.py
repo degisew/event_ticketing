@@ -7,12 +7,6 @@ class TicketingBaseException(APIException):
     default_code = "TICKETING_ERROR"
 
 
-class SerializationError(APIException):
-    status_code = 500
-    default_detail = "Object Serialization Error"
-    default_code = "SERIALIZATION_ERROR"
-
-
 class BusinessLogicError(TicketingBaseException):
     status_code = 400
     default_detail = "Business logic error"
@@ -41,18 +35,6 @@ class EventNotAvailableError(BusinessLogicError):
     status_code = 410
     default_detail = "Event is not available for reservation"
     default_code = "EVENT_NOT_AVAILABLE"
-
-
-class DataIntegrityError(TicketingBaseException):
-    status_code = 500
-    default_detail = "A system error occurred"
-    default_code = "DATA_INTEGRITY_ERROR"
-
-
-class ExternalServiceError(TicketingBaseException):
-    status_code = 502
-    default_detail = "External service temporarily unavailable"
-    default_code = "EXTERNAL_SERVICE_ERROR"
 
 
 class ReservationNotFoundError(TicketingBaseException):

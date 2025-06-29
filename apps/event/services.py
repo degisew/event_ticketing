@@ -1,7 +1,8 @@
 import logging
+from uuid import UUID
+from django.core.cache import cache
 from django.utils import timezone
 from django.db import transaction, IntegrityError, DatabaseError
-from django.core.exceptions import ObjectDoesNotExist
 from apps.core.models import DataLookup
 from apps.event.enums import (
     ReservationPaymentStatuses,
@@ -11,16 +12,34 @@ from apps.event.enums import (
     TicketStatuses,
     TICKET_STATUS_TYPE,
 )
+from apps.core.exceptions import DataIntegrityError
 from apps.event.exceptions import (
-    DataIntegrityError,
     EventNotAvailableError,
     NotEnoughSeatsAvailableError,
 )
 from apps.event.models import TicketType, Transaction, Reservation, Ticket
 from apps.core.utils import generate_unique_code
+from apps.core.services import DataLookupService
 from apps.event.tasks import send_ticket_email
 
 logger = logging.getLogger(__name__)
+
+
+class TicketTypeService:
+    @staticmethod
+    def get_cached_ticket_type(id: UUID):
+        key = f"ticket_type_{id}"
+
+        result = cache.get(key)
+
+        if not result:
+            try:
+                result = TicketType.objects.select_for_update().get(id=id)
+                cache.set(key, result, timeout=3600)
+            except TicketType.DoesNotExist as e:
+                logger.error(str(e))
+                raise DataIntegrityError("Ticket Type not found")
+        return result
 
 
 class ReservationService:
@@ -57,9 +76,6 @@ class ReservationService:
         # Get or create lookup data
         payment_status, status = ReservationService._get_reservation_statuses()
 
-        if ticket_type.available_tickets < ticket_quantity:
-            raise NotEnoughSeatsAvailableError("Not enough seats available.")
-
         code = generate_unique_code("RSVP", "")
 
         reservation = Reservation.objects.create(
@@ -81,12 +97,14 @@ class ReservationService:
         if not event.is_active or event.start_date < timezone.now():
             raise EventNotAvailableError("Event is no longer available for reservation")
 
+        tickets_available: int = ticket_type.available_tickets
+
         # Check seat availability
-        if ticket_type.available_tickets < ticket_quantity:
+        if tickets_available < ticket_quantity:
             raise NotEnoughSeatsAvailableError(
                 detail={
-                    "message": f"Only {ticket_type.available_tickets} seats available.",
-                    "available": ticket_type.available_tickets,
+                    "message": f"Only {tickets_available} seats available.",
+                    "available": tickets_available,
                     "requested": ticket_quantity,
                 }
             )
@@ -94,58 +112,34 @@ class ReservationService:
     @staticmethod
     def _get_reservation_statuses():
         """Get or create reservation status lookup data"""
-        try:
-            payment_status = DataLookup.objects.get(
-                type=RESERVATION_PAYMENT_STATUS_TYPE,
-                value=ReservationPaymentStatuses.PENDING.value,
-            )
+        payment = DataLookupService.get_cached_lookup(
+            RESERVATION_PAYMENT_STATUS_TYPE, ReservationPaymentStatuses.PENDING.value
+        )
+        status = DataLookupService.get_cached_lookup(
+            RESERVATION_STATUS_TYPE, ReservationStatuses.PENDING.value
+        )
 
-            status = DataLookup.objects.get(
-                type=RESERVATION_STATUS_TYPE, value=ReservationStatuses.PENDING.value
-            )
-
-            return payment_status, status
-
-        except DataLookup.DoesNotExist as e:
-            logger.error(f"Required lookup data not found: {str(e)}")
-            raise DataIntegrityError(
-                detail={"System configuration error: Required status data not found"}
-            )
+        return payment, status
 
     # TODO: Use this method for both updations using a flag (
     # TODO: decrementing for paid and increment for revocked reservations)
     @staticmethod
     def _update_ticket_availability(ticket_type, quantity):
-        try:
-            # Use select_for_update to prevent race conditions
-            updated_ticket_type = TicketType.objects.select_for_update().get(
-                id=ticket_type.id
-            )
+        updated_ticket_type = TicketTypeService.get_cached_ticket_type(ticket_type.id)
 
-            if updated_ticket_type.available_tickets < quantity:
-                raise NotEnoughSeatsAvailableError(
-                    detail={
-                        "available": updated_ticket_type.available_tickets,
-                        "requested": quantity,
-                    }
-                )
-
-            updated_ticket_type.update_available_tickets(quantity)
-
-        except ObjectDoesNotExist:
-            logger.error(f"Ticket type {ticket_type.id} not found during update")
-            raise DataIntegrityError("Ticket type no longer exists")
+        updated_ticket_type.update_available_tickets(quantity)
 
 
 class TransactionService:
     @staticmethod
     def _calculate_total_amount(reservation):
-        if reservation.ticket_type:
-            price = reservation.ticket_type.price
-            return price * reservation.ticket_quantity
+        ticket_type = reservation.ticket_type
+        if ticket_type:
+            return ticket_type.price * reservation.ticket_quantity
         raise AttributeError
 
     @staticmethod
+    # TODO: Proper Eror handling
     def _create_transaction_record(reservation, amount):
         try:
             return Transaction.objects.create(reservation=reservation, amount=amount)
@@ -159,7 +153,7 @@ class TransactionService:
         return Ticket.objects.create(
             reservation=reservation,
             ticket_number=generate_unique_code("TKT", reservation.id),
-            status=DataLookup.objects.get(
+            status=DataLookupService.get_cached_lookup(
                 type=TICKET_STATUS_TYPE, value=TicketStatuses.SOLD.value
             ),
             unit_price=ticket_type.price,
@@ -186,12 +180,12 @@ class TransactionService:
     def _get_reservation_statuses():
         """Get or create reservation status lookup data"""
         try:
-            payment_status = DataLookup.objects.get(
+            payment_status = DataLookupService.get_cached_lookup(
                 type=RESERVATION_PAYMENT_STATUS_TYPE,
                 value=ReservationPaymentStatuses.PAID.value,
             )
 
-            status = DataLookup.objects.get(
+            status = DataLookupService.get_cached_lookup(
                 type=RESERVATION_STATUS_TYPE, value=ReservationStatuses.COMPLETED.value
             )
 
@@ -200,7 +194,7 @@ class TransactionService:
         except DataLookup.DoesNotExist as e:
             logger.error(f"Required lookup data not found: {str(e)}")
             raise DataIntegrityError(
-                detail={"System configuration error: Required status data not found"}
+                detail={"System configuration error: Required DataLookup not found."}
             )
 
     @staticmethod
