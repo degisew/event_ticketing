@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+from apps.account.services import RoleService
+from apps.core.services import DataLookupService
 from apps.core.validators import validate_email, validate_password
 from apps.account.enums import AccountState
 from apps.account.models import Role, UserProfile
-from apps.core.models import DataLookup
 from apps.core.serializers import (
     DataLookupResponseSerializer,
     DynamicFieldsModelSerializer,
@@ -58,21 +58,14 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("confirm_password")
         password = validated_data.pop("password")
-
-        try:
-            # Fetch the account state
-            account_state = DataLookup.objects.get(
-                type=AccountState.TYPE.value, value=AccountState.ACTIVE.value
-            )
-        except DataLookup.DoesNotExist:
-            raise serializers.ValidationError("Active state not found in DataLookup.")
-
         role_id = validated_data.pop("role", None)
 
-        # TODO: raise custom exception and log
-        role = get_object_or_404(Role, pk=role_id) if role_id else None
+        account_state = DataLookupService.get_cached_lookup(
+            type=AccountState.TYPE.value, value=AccountState.ACTIVE.value
+        )
 
-        # Create the user
+        role = RoleService.get_cached_role(role_id)
+
         user = User(
             email=validated_data["email"],
             role=role,
