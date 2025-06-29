@@ -19,6 +19,8 @@ from apps.event.serializers import (
 )
 
 
+@method_decorator(cache_page(60 * 15), name="list")
+@method_decorator(cache_page(60 * 15), name="retrieve")
 class EventViewSet(AbstractModelViewSet):
     permission_classes = [AllowAny]
     serializer_class = EventSerializer
@@ -37,6 +39,7 @@ class TicketViewSet(AbstractModelViewSet):
 
 
 @method_decorator(cache_page(60 * 15), name="list")
+@method_decorator(cache_page(60 * 15), name="retrieve")
 class TicketTypeViewSet(AbstractModelViewSet):
     permission_classes = [AllowAny]
     serializer_class = TicketTypeSerializer
@@ -45,21 +48,18 @@ class TicketTypeViewSet(AbstractModelViewSet):
     queryset = TicketType.objects.select_related("category", "event").all()
 
 
-@method_decorator(cache_page(60 * 15), name="list")
 class ReservationViewSet(AbstractModelViewSet):
     permission_classes = [AllowAny]
     serializer_class = ReservationSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_classes = [ReservationFilter]
     queryset = Reservation.objects.select_related(
         "user", "ticket_type__category", "payment_status", "status"
     ).all()
-    filter_backends = [DjangoFilterBackend]
-    filterset_classes = [ReservationFilter]
 
 
 class TransactionViewSet(AbstractModelViewSet):
     permission_classes = [AllowAny]
     http_method_names = ["get", "post"]
     serializer_class = TransactionSerializer
-    queryset = Transaction.objects.select_related(
-        "reservation__event",
-    ).all()
+    queryset = Transaction.objects.select_related("reservation__event").all()

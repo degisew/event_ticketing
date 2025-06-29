@@ -45,8 +45,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: redis_broker
-    # restart: always
     ports:
       - "6379:6379"
 

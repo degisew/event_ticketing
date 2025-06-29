@@ -230,6 +230,17 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env("REDIS_CACHE_URL", cast=str),
+        "OPTIONS": {
+            # TODO: Check for sentinel client
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -257,7 +268,7 @@ LOGGING = {
             "formatter": "verbose",
         },
         "console": {
-            "level": "DEBUG",
+            "level": "ERROR",
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
@@ -269,15 +280,9 @@ LOGGING = {
 }
 
 # CELERY configuration
-CELERY_BROKER_URL = env(
-    "CELERY_BROKER",
-    default="redis://127.0.0.1:6379/0",
-    cast=str,
-)
+CELERY_BROKER_URL = env("CELERY_BROKER", cast=str)
 
-CELERY_RESULT_BACKEND = env(
-    "CELERY_BACKEND", cast=str, default="redis://127.0.0.1:6379/0"
-)
+CELERY_RESULT_BACKEND = env("CELERY_BACKEND", cast=str)
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

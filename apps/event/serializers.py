@@ -5,7 +5,7 @@ from apps.core.serializers import (
     DataLookupResponseSerializer,
     DynamicFieldsModelSerializer,
 )
-from apps.event.exceptions import SerializationError
+from apps.core.exceptions import SerializationError
 from apps.event.models import Event, Ticket, Reservation, TicketType, Transaction
 from apps.core.utils import generate_unique_code
 from apps.event.services import TransactionService, ReservationService
@@ -89,6 +89,7 @@ class TicketTypeSerializer(serializers.ModelSerializer):
 
 class ReservationResponseSerializer(serializers.ModelSerializer):
     user = UserResponseSerializer(fields=["email"])
+    ticket_type = TicketTypeResponseSerializer()
     ticket_type = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     payment_status = serializers.SerializerMethodField()
