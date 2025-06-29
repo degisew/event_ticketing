@@ -50,7 +50,7 @@ SHOW_SWAGGER = env("SHOW_SWAGGER", default=True, cast=bool)
 
 ENV = env("ENV", default="development")
 
-DOCKER_APP = env("DOCKER_APP", default=True, cast=bool)
+DOCKER_APP = env("DOCKER_APP", cast=bool)
 
 # A list of all the people who get code error notifications.
 ADMINS = env("ADMINS")
