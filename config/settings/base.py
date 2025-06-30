@@ -258,7 +258,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": str(LOG_DIR / "errors.log"),
+            "filename": str(LOG_DIR / "ticketing.log"),
             "formatter": "verbose",
         },
         "error_file": {

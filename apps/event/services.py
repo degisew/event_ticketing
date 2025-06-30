@@ -3,7 +3,6 @@ from uuid import UUID
 from django.core.cache import cache
 from django.utils import timezone
 from django.db import transaction, IntegrityError, DatabaseError
-from apps.core.models import DataLookup
 from apps.event.enums import (
     ReservationPaymentStatuses,
     RESERVATION_PAYMENT_STATUS_TYPE,
@@ -129,8 +128,6 @@ class ReservationService:
 
         updated_ticket_type.update_available_tickets(quantity)
 
-
-class TransactionService:
     @staticmethod
     def _calculate_total_amount(reservation):
         ticket_type = reservation.ticket_type
@@ -172,34 +169,13 @@ class TransactionService:
 
         tickets = []
         for _ in range(quantity):
-            ticket = TransactionService._create_single_ticket(ticket_type, reservation)
+            ticket = ReservationService._create_single_ticket(ticket_type, reservation)
             tickets.append(ticket.ticket_number)
         return tickets
 
     @staticmethod
-    def _get_reservation_statuses():
-        """Get or create reservation status lookup data"""
-        try:
-            payment_status = DataLookupService.get_cached_lookup(
-                type=RESERVATION_PAYMENT_STATUS_TYPE,
-                value=ReservationPaymentStatuses.PAID.value,
-            )
-
-            status = DataLookupService.get_cached_lookup(
-                type=RESERVATION_STATUS_TYPE, value=ReservationStatuses.COMPLETED.value
-            )
-
-            return payment_status, status
-
-        except DataLookup.DoesNotExist as e:
-            logger.error(f"Required lookup data not found: {str(e)}")
-            raise DataIntegrityError(
-                detail={"System configuration error: Required DataLookup not found."}
-            )
-
-    @staticmethod
     def _update_reservation_status(reservation):
-        payment_status, status = TransactionService._get_reservation_statuses()
+        payment_status, status = ReservationService._get_reservation_statuses()
 
         reservation.payment_status = payment_status
         reservation.status = status
@@ -208,16 +184,15 @@ class TransactionService:
 
     @staticmethod
     @transaction.atomic
-    def transaction_handler(validated_data):
-        reservation = validated_data["reservation"]
+    def process_payment(reservation):
+        print("DDD", reservation)
+        tickets = ReservationService._create_tickets(reservation)
 
-        tickets = TransactionService._create_tickets(reservation)
+        ReservationService._update_reservation_status(reservation)
 
-        TransactionService._update_reservation_status(reservation)
+        total_amount = ReservationService._calculate_total_amount(reservation)
 
-        total_amount = TransactionService._calculate_total_amount(reservation)
-
-        payment = TransactionService._create_transaction_record(
+        transaction = ReservationService._create_transaction_record(
             reservation, total_amount
         )
 
@@ -227,4 +202,4 @@ class TransactionService:
             # Trigger the Celery task in the background
             send_ticket_email.delay(tickets, recipient_email, reservation.event.name)
 
-        return payment
+        return transaction
