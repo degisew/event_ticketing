@@ -2,7 +2,7 @@
 
 branch_name=$(git rev-parse --abbrev-ref HEAD)
 
-pattern="^(feature|bugfix|hotfix|refactor|test|perf|chore|docs)/[a-z0-9\-_]+$"
+pattern="^(feature|bugfix|hotfix|ref|test|perf|chore|docs)/[a-z0-9\-_]+$"
 
 if ! echo "$branch_name" | grep -qE "$pattern"; then
   echo "Branch name doesn't follow Conventional branch name format"\n
