@@ -1,19 +1,23 @@
-from rest_framework.routers import DefaultRouter
-
+from rest_framework_nested import routers
 from apps.event.views import (
     EventViewSet,
     ReservationViewSet,
     TicketTypeViewSet,
     TransactionViewSet,
-    TicketViewSet,
 )
 
-router = DefaultRouter()
+
+router = routers.SimpleRouter()  # type: ignore
 
 router.register(r"events", EventViewSet, basename="events")
-router.register(r"tickets", TicketViewSet, basename="tickets")
-router.register(r"ticket_types", TicketTypeViewSet, basename="ticket_types")
-router.register(r"reservations", ReservationViewSet, basename="reservations")
-router.register(r"payments", TransactionViewSet, basename="payments")
 
-urlpatterns = router.urls
+events_router = routers.NestedSimpleRouter(router, "events", lookup="event")
+
+events_router.register(r"ticket_types", TicketTypeViewSet, basename="ticket_types")
+
+events_router.register(r"reservations", ReservationViewSet, basename="reservations")
+
+router.register(r"transactions", TransactionViewSet, basename="transactions")
+
+
+urlpatterns = router.urls + events_router.urls
