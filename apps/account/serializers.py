@@ -115,21 +115,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = [
-            "first_name",
-            "last_name",
-            "phone",
-            "avatar",
-            "address",
-            "created_at",
-            "updated_at",
-        ]
-
-    def create(self, validated_data):
-        user = self.context["request"].user
-        validated_data["user"] = user
-
-        return super().create(validated_data)
+        fields = ["first_name", "last_name", "phone", "avatar", "address"]
 
     def to_representation(self, instance):
         return UserProfileResponseSerializer(instance, self.context).to_representation(
@@ -138,8 +124,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class UserProfileResponseSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
     class Meta:
         model = UserProfile
         fields = [
@@ -149,7 +133,6 @@ class UserProfileResponseSerializer(serializers.ModelSerializer):
             "phone",
             "avatar",
             "address",
-            "user",
             "created_at",
             "updated_at",
         ]

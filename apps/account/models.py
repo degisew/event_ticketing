@@ -31,7 +31,7 @@ class User(AbstractUser, AbstractBaseModel):
         Role, null=True, blank=True, on_delete=models.RESTRICT, related_name="+"
     )
 
-    is_profile_set = models.BooleanField(default=True)
+    is_profile_set = models.BooleanField(default=False)
 
     state = models.ForeignKey(
         DataLookup,

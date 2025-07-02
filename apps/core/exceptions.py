@@ -7,6 +7,12 @@ class ServiceBaseException(APIException):
     default_code = "TICKETING_ERROR"
 
 
+class NotFoundException(APIException):
+    status_code = 404
+    default_detail = "Not found"
+    default_code = "NOT_FOUND"
+
+
 class SerializationError(APIException):
     status_code = 500
     default_detail = "Object Serialization Error"
