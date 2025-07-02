@@ -10,6 +10,7 @@ from apps.event.enums import (
     RESERVATION_STATUS_TYPE,
     TicketStatuses,
     TICKET_STATUS_TYPE,
+    TicketTypeUpdateFlags,
 )
 from apps.core.exceptions import DataIntegrityError
 from apps.event.exceptions import (
@@ -19,7 +20,7 @@ from apps.event.exceptions import (
 from apps.event.models import TicketType, Transaction, Reservation, Ticket
 from apps.core.utils import generate_unique_code
 from apps.core.services import DataLookupService
-from apps.event.tasks import send_ticket_email
+from apps.event.tasks import send_ticket_email, expire_reservation_task
 
 logger = logging.getLogger(__name__)
 
@@ -72,8 +73,13 @@ class ReservationService:
             event, ticket_type, ticket_quantity
         )
 
-        # Get or create lookup data
-        payment_status, status = ReservationService._get_reservation_statuses()
+        payment_status = DataLookupService.get_cached_lookup(
+            RESERVATION_PAYMENT_STATUS_TYPE, ReservationPaymentStatuses.PENDING.value
+        )
+
+        status = DataLookupService.get_cached_lookup(
+            RESERVATION_STATUS_TYPE, ReservationStatuses.PENDING.value
+        )
 
         code = generate_unique_code("RSVP", "")
 
@@ -82,7 +88,12 @@ class ReservationService:
         )
 
         # update available seats
-        ReservationService._update_ticket_availability(ticket_type, ticket_quantity)
+        ReservationService._update_ticket_availability(
+            ticket_type, ticket_quantity, flag=TicketTypeUpdateFlags.DECREMENT.value
+        )
+
+        # scheduling expiration
+        expire_reservation_task.apply_async(args=[reservation.id], countdown=10 * 60)
 
         logger.info(
             f"{user.email} successfully reserved {ticket_quantity} tickets for event {event.id}"
@@ -109,24 +120,12 @@ class ReservationService:
             )
 
     @staticmethod
-    def _get_reservation_statuses():
-        """Get or create reservation status lookup data"""
-        payment = DataLookupService.get_cached_lookup(
-            RESERVATION_PAYMENT_STATUS_TYPE, ReservationPaymentStatuses.PENDING.value
-        )
-        status = DataLookupService.get_cached_lookup(
-            RESERVATION_STATUS_TYPE, ReservationStatuses.PENDING.value
-        )
-
-        return payment, status
-
-    # TODO: Use this method for both updations using a flag (
-    # TODO: decrementing for paid and increment for revocked reservations)
-    @staticmethod
-    def _update_ticket_availability(ticket_type, quantity):
+    def _update_ticket_availability(ticket_type, quantity, flag):
         updated_ticket_type = TicketTypeService.get_cached_ticket_type(ticket_type.id)
 
-        updated_ticket_type.update_available_tickets(quantity)
+        updated_ticket_type.update_available_tickets(
+            quantity, flag=TicketTypeUpdateFlags.DECREMENT.value
+        )
 
     @staticmethod
     def _calculate_total_amount(reservation):
@@ -174,9 +173,7 @@ class ReservationService:
         return tickets
 
     @staticmethod
-    def _update_reservation_status(reservation):
-        payment_status, status = ReservationService._get_reservation_statuses()
-
+    def _update_reservation_status(reservation, payment_status, status):
         reservation.payment_status = payment_status
         reservation.status = status
 
@@ -185,12 +182,21 @@ class ReservationService:
     @staticmethod
     @transaction.atomic
     def process_payment(reservation):
-        print("DDD", reservation)
         tickets = ReservationService._create_tickets(reservation)
 
-        ReservationService._update_reservation_status(reservation)
+        payment_status = DataLookupService.get_cached_lookup(
+            RESERVATION_PAYMENT_STATUS_TYPE, ReservationPaymentStatuses.PAID.value
+        )
+
+        status = DataLookupService.get_cached_lookup(
+            RESERVATION_STATUS_TYPE, ReservationStatuses.COMPLETED.value
+        )
 
         total_amount = ReservationService._calculate_total_amount(reservation)
+
+        ReservationService._update_reservation_status(
+            reservation, payment_status, status
+        )
 
         transaction = ReservationService._create_transaction_record(
             reservation, total_amount

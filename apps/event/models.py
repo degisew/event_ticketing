@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from apps.core.models import AbstractBaseModel, DataLookup
+from apps.event.enums import TicketTypeUpdateFlags
 
 
 class Event(AbstractBaseModel):
@@ -102,9 +103,12 @@ class TicketType(AbstractBaseModel):
             self.available_tickets = self.total_tickets
         super().save(*args, **kwargs)
 
-    def update_available_tickets(self, quantity: int):
-        self.available_tickets -= quantity
-        self.save()
+    def update_available_tickets(self, quantity: int, flag: str):
+        if flag == TicketTypeUpdateFlags.DECREMENT.value:
+            self.available_tickets -= quantity
+        if flag == TicketTypeUpdateFlags.INCREMENT.value:
+            self.available_tickets += quantity
+        self.save(update_fields=["available_tickets"])
 
     def __str__(self) -> str:
         return f"{self.price} for {self.category.name} ticket"

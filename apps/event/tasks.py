@@ -1,7 +1,20 @@
+import logging
 from django.conf import settings
+from django.db import transaction
 from django.core.mail import EmailMessage
-from apps.event.utils import generate_qr_code
+from django.core.exceptions import ObjectDoesNotExist
 from celery import shared_task
+from apps.core.services import DataLookupService
+from apps.event.models import Reservation
+from apps.event.utils import generate_qr_code
+from apps.event.enums import (
+    ReservationStatuses,
+    TicketTypeUpdateFlags,
+    RESERVATION_STATUS_TYPE,
+)
+
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -32,3 +45,41 @@ def send_ticket_email(tickets_data, recipient_email, event):
 
     # Send the email
     email.send()
+
+
+@shared_task
+def expire_reservation_task(reservation_id):
+    try:
+        with transaction.atomic():
+            reservation = Reservation.objects.select_for_update().get(id=reservation_id)
+
+            reservation_pending_status = DataLookupService.get_cached_lookup(
+                type=RESERVATION_STATUS_TYPE, value=ReservationStatuses.PENDING.value
+            )
+
+            if reservation.status != reservation_pending_status:
+                logger.info(
+                    f"Reservation {reservation_id} is not pending; skipping expiry."
+                )
+                return
+
+            reservation_expired_status = DataLookupService.get_cached_lookup(
+                type=RESERVATION_STATUS_TYPE, value=ReservationStatuses.EXPIRED.value
+            )
+
+            reservation.status = reservation_expired_status
+            reservation.save(update_fields=["status"])
+
+            reservation.ticket_type.update_available_tickets(
+                reservation.ticket_quantity, flag=TicketTypeUpdateFlags.INCREMENT.value
+            )
+
+            logger.info(
+                f"Expired reservation {reservation_id} and updated ticket availability."
+            )
+
+    except ObjectDoesNotExist:
+        logger.warning(f"Reservation {reservation_id} not found during expiry task.")
+    except Exception as e:
+        logger.error(f"Error expiring reservation {reservation_id}. {e}", exc_info=True)
+        raise
