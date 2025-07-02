@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class TicketTypeUpdateFlags(Enum):
+    INCREMENT = "increment_ticket_quantity"
+    DECREMENT = "decrement_ticket_quantity"
+
+
 class ReservationPaymentStatuses(Enum):
     PENDING = "reservation_payment_pending"
     PAID = "reservation_payment_paid"
@@ -14,6 +19,7 @@ class ReservationStatuses(Enum):
     CANCELED = "reservation_canceled"
     COMPLETED = "reservation_completed"
     REFUNDED = "reservation_refunded"
+    EXPIRED = "reservation_status_expired"
 
 
 class TicketStatuses(Enum):
