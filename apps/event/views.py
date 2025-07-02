@@ -56,10 +56,13 @@ class TicketTypeViewSet(AbstractModelViewSet):
         event_pk = self.kwargs.get("event_pk")
         return TicketType.objects.select_related("category").filter(event=event_pk)
 
-    def perform_create(self, serializer):
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         event_pk = self.kwargs.get("event_pk")
         event = get_object_or_404(Event, id=event_pk)
-        serializer.save(event=event)
+        context["event"] = event
+
+        return context
 
 
 class ReservationViewSet(AbstractModelViewSet):

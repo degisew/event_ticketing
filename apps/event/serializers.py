@@ -1,4 +1,5 @@
 import logging
+from django.db.models import Sum
 from rest_framework import serializers
 from apps.account.serializers import UserResponseSerializer
 from apps.core.serializers import (
@@ -80,6 +81,35 @@ class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketType
         fields = ["category", "price", "total_tickets"]
+
+    def validate(self, attrs):
+        event = self.context["event"]
+
+        existing_ticket_types = TicketType.objects.filter(event=event)
+
+        # exclude current instance on update (not on create)
+        if self.instance:
+            existing_ticket_types = existing_ticket_types.exclude(id=self.instance.id)
+
+        total_assigned_tickets = (
+            existing_ticket_types.aggregate(total=Sum("total_tickets"))["total"] or 0
+        )
+
+        remaining_capacity = event.capacity - total_assigned_tickets
+        requested_tickets = attrs["total_tickets"]
+
+        if remaining_capacity < requested_tickets:
+            raise serializers.ValidationError(
+                f"Cannot assign {requested_tickets} tickets. "
+                f"Only {remaining_capacity} ticket(s) remain for this event."
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+        event = self.context["event"]
+        validated_data["event"] = event
+        return super().create(validated_data)
 
     def to_representation(self, instance):
         return TicketTypeResponseSerializer(
