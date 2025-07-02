@@ -93,7 +93,7 @@ class ReservationService:
         )
 
         # scheduling expiration
-        expire_reservation_task.apply_async(args=[reservation.id], countdown=1 * 60)
+        expire_reservation_task.apply_async(args=[reservation.id], countdown=10 * 60)
 
         logger.info(
             f"{user.email} successfully reserved {ticket_quantity} tickets for event {event.id}"
