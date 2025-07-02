@@ -1,33 +1,66 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import viewsets, status
+from rest_framework import viewsets, mixins, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
-from apps.account.models import Role, UserProfile
+from drf_spectacular.utils import extend_schema
+from apps.account.services import UserProfileService
+from apps.account.models import Role
 from apps.account.serializers import (
     PasswordChangeSerializer,
     RoleSerializer,
+    UserProfileResponseSerializer,
     UserSerializer,
     UserProfileSerializer,
 )
-
-from apps.core.views import AbstractModelViewSet
 
 
 User = get_user_model()
 
 
-class RoleViewSet(AbstractModelViewSet):
+class RoleViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
-    http_method_names = ["get"]
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
 
-class UserViewSet(AbstractModelViewSet):
+class UserViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
     queryset = User.objects.select_related("role", "state").all()
+
+    @extend_schema(
+        request=UserProfileSerializer, responses=UserProfileResponseSerializer
+    )
+    @action(methods=["get", "post", "patch"], detail=False, url_path="me")
+    def profile(self, request, *args, **kwargs):
+        user = request.user
+
+        if request.method == "GET":
+            profile = UserProfileService.get_user_profile(user)
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data)
+
+        if request.method == "POST":
+            serializer = UserProfileSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(user=user)
+            user.is_profile_set = True
+            user.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        elif request.method == "PATCH":
+            profile = UserProfileService.get_user_profile(user)
+            serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PasswordChangeViewSet(viewsets.ViewSet):
@@ -50,22 +83,3 @@ class PasswordChangeViewSet(viewsets.ViewSet):
             },
             status=status.HTTP_200_OK,
         )
-
-
-class USerProfileViewSet(AbstractModelViewSet):
-    permission_classes = [IsAuthenticated]
-    http_method_names = ["get", "post", "patch"]
-    serializer_class = UserProfileSerializer
-
-    def get_queryset(self):
-        return UserProfile.objects.filter(user=self.request.user)
-
-    # @property
-    # def access_policy(self):
-    #     return self.permission_classes[0]
-
-    # def get_queryset(self):
-    #     return self.access_policy.scope_queryset(
-    #         request=self.request,
-    #         queryset=UserProfile.objects.all()
-    #     )

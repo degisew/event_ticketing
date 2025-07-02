@@ -1,9 +1,24 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-
-# from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from apps.account.forms import UserChangeForm, UserCreationForm
 from apps.account.models import Role, User, UserPreferences, UserProfile
+
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    verbose_name = "Profile"
+    can_delete = False
+    extra = 0
+    exclude = ["deleted_at"]
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(User)
@@ -12,18 +27,14 @@ class UserAdmin(admin.ModelAdmin):
     add_form = UserCreationForm
     form = UserChangeForm
     model = User
-
-    list_display = ["email", "role"]
-    list_filter = ["role"]
-    fieldsets = [
-        (None, {"fields": ["email", "password"]}),
-        (
-            "Permissions",
-            {"fields": ["state", "role"]},
-        ),
-        ("Important dates", {"fields": ["created_at", "updated_at", "deleted_at"]}),
-    ]
-
+    inlines = [UserProfileInline]
+    list_display = ["email", "role", "state", "is_profile_set"]
+    readonly_fields = ["created_at", "updated_at", "last_login", "role", "date_joined"]
+    exclude = ["deleted_at", "user_permissions", "groups"]
+    list_filter = ["role", "is_profile_set"]
+    search_fields = ["email"]
+    ordering = ["-created_at"]
+    filter_horizontal = []
     add_fieldsets = [
         (
             None,
@@ -41,14 +52,8 @@ class UserAdmin(admin.ModelAdmin):
         )
     ]
 
-    search_fields = ["email"]
-    ordering = ["-created_at"]
-    readonly_fields = ["created_at", "updated_at"]
-    filter_horizontal = []
-
 
 admin.site.register(Role)
-admin.site.register(UserProfile)
 admin.site.register(UserPreferences)
 
 # since we're not using Django's built-in permissions,

@@ -1,7 +1,8 @@
 from uuid import UUID
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
-from apps.account.models import Role
+from apps.account.models import Role, UserProfile
+from apps.core.exceptions import NotFoundException
 
 
 class RoleService:
@@ -16,3 +17,14 @@ class RoleService:
             cache.set(key, result, timeout=3600)
 
         return result
+
+
+class UserProfileService:
+    @staticmethod
+    def get_user_profile(user) -> UserProfile:
+        try:
+            return UserProfile.objects.select_related("user").get(user=user)
+        except UserProfile.DoesNotExist:
+            raise NotFoundException(
+                "Your profile is not not set. Please complete your profile."
+            )
